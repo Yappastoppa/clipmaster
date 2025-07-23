@@ -1,0 +1,619 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customer Reviews - Auto Parts Shop</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sofia+Sans+Extra+Condensed:ital,wght@0,400;0,600;0,800;1,800&display=swap" rel="stylesheet">
+  <style>
+      :root {
+          --racing-red: #e63946;
+          --deep-black: #1a1a1a;
+          --chrome-silver: #c5c6c7;
+          --steel-blue: #457b9d;
+          --white: #ffffff;
+          --shadow: rgba(26, 26, 26, 0.2);
+          --accent-orange: #ff6b35;
+      }
+
+      * {
+          box-sizing: border-box;
+          margin: 0;
+          padding: 0;
+      }
+
+      body { 
+          font-family: "Sofia Sans Extra Condensed", sans-serif; 
+          background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+          color: var(--deep-black);
+          min-height: 100vh;
+      }
+
+      .nav { 
+          background: linear-gradient(135deg, var(--deep-black) 0%, #2d3436 100%);
+          padding: 0;
+          box-shadow: 0 4px 20px var(--shadow);
+          position: sticky;
+          top: 0;
+          z-index: 100;
+          border-bottom: 3px solid var(--racing-red);
+      }
+
+      .nav-container {
+          max-width: 1200px;
+          margin: 0 auto;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 15px 20px;
+      }
+
+      .nav-brand {
+          display: flex;
+          align-items: center;
+      }
+
+      .brand-logo {
+          display: flex;
+          align-items: center;
+          gap: 15px;
+      }
+
+      .brand-text {
+          display: flex;
+          flex-direction: column;
+          line-height: 1.2;
+      }
+
+      .brand-name {
+          font-size: 1.4rem;
+          font-weight: 800;
+          color: var(--white);
+          letter-spacing: 1px;
+      }
+
+      .brand-tagline {
+          font-size: 0.7rem;
+          color: var(--chrome-silver);
+          text-transform: uppercase;
+          letter-spacing: 1.5px;
+          margin-top: 2px;
+      }
+
+      .nav-links {
+          display: flex;
+          align-items: center;
+          gap: 30px;
+      }
+
+      .nav-link {
+          color: var(--white);
+          text-decoration: none;
+          padding: 10px 20px;
+          border-radius: 30px;
+          font-weight: 600;
+          font-size: 1rem;
+          transition: all 0.3s ease;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          position: relative;
+      }
+
+      .nav-link:hover {
+          background: linear-gradient(135deg, var(--racing-red) 0%, var(--accent-orange) 100%);
+          color: var(--white);
+          transform: translateY(-2px);
+          box-shadow: 0 5px 15px rgba(230, 57, 70, 0.4);
+      }
+
+      .cart-link {
+          background: linear-gradient(135deg, var(--steel-blue) 0%, var(--racing-red) 100%);
+          font-weight: 700;
+      }
+
+      .cart-link:hover {
+          background: linear-gradient(135deg, var(--racing-red) 0%, var(--accent-orange) 100%);
+          transform: translateY(-3px) scale(1.05);
+      }
+
+      .container { 
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 40px 20px;
+      }
+
+      h1 {
+          font-size: 3rem;
+          font-weight: 800;
+          color: var(--deep-black);
+          margin-bottom: 40px;
+          text-shadow: 2px 2px 4px var(--shadow);
+          text-align: center;
+      }
+
+      h2 {
+          font-size: 2rem;
+          font-weight: 600;
+          color: var(--deep-black);
+          margin: 40px 0 20px 0;
+      }
+
+      .review-form {
+          background: var(--white);
+          padding: 40px;
+          border-radius: 20px;
+          box-shadow: 0 8px 25px var(--shadow);
+          margin-bottom: 40px;
+      }
+
+      .form-group {
+          margin-bottom: 20px;
+      }
+
+      .form-group label {
+          display: block;
+          margin-bottom: 8px;
+          font-weight: 600;
+          color: var(--deep-black);
+      }
+
+      .form-group input,
+      .form-group textarea,
+      .form-group select {
+          width: 100%;
+          padding: 12px 15px;
+          border: 2px solid var(--steel-blue);
+          border-radius: 10px;
+          font-size: 1rem;
+          font-family: inherit;
+          transition: border-color 0.3s ease;
+      }
+
+      .form-group textarea {
+          height: 120px;
+          resize: vertical;
+      }
+
+      .form-group input:focus,
+      .form-group textarea:focus,
+      .form-group select:focus {
+          outline: none;
+          border-color: var(--racing-red);
+      }
+
+      .star-rating {
+          display: flex;
+          gap: 5px;
+          margin: 10px 0;
+      }
+
+      .star {
+          font-size: 2rem;
+          color: #ddd;
+          cursor: pointer;
+          transition: color 0.3s ease;
+      }
+
+      .star:hover,
+      .star.active {
+          color: #ffd700;
+      }
+
+      .btn {
+          background: var(--racing-red);
+          color: var(--white);
+          border: none;
+          padding: 15px 30px;
+          border-radius: 50px;
+          font-size: 1.1rem;
+          font-weight: 600;
+          font-family: inherit;
+          cursor: pointer;
+          transition: all 0.3s ease;
+      }
+
+      .btn:hover {
+          background: var(--accent-orange);
+          color: var(--white);
+          transform: translateY(-2px);
+          box-shadow: 0 5px 15px var(--shadow);
+      }
+
+      .reviews-section {
+          background: var(--white);
+          padding: 40px;
+          border-radius: 20px;
+          box-shadow: 0 8px 25px var(--shadow);
+      }
+
+      .review-item {
+          border-bottom: 2px solid #f0f9ff;
+          padding: 25px 0;
+      }
+
+      .review-item:last-child {
+          border-bottom: none;
+      }
+
+      .review-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 15px;
+      }
+
+      .reviewer-info h4 {
+          font-size: 1.2rem;
+          font-weight: 600;
+          color: var(--deep-black);
+      }
+
+      .review-date {
+          color: var(--deep-black);
+          opacity: 0.7;
+          font-size: 0.9rem;
+      }
+
+      .review-rating {
+          display: flex;
+          gap: 3px;
+      }
+
+      .review-rating .star {
+          font-size: 1rem;
+      }
+
+      .review-text {
+          color: var(--deep-black);
+          line-height: 1.6;
+          margin-bottom: 10px;
+      }
+
+      .review-product {
+          background: #f0f9ff;
+          padding: 10px 15px;
+          border-radius: 10px;
+          font-size: 0.9rem;
+          color: var(--deep-black);
+          opacity: 0.8;
+      }
+
+      .success-message {
+          background: #27ae60;
+          color: white;
+          padding: 15px;
+          border-radius: 10px;
+          margin: 20px 0;
+          text-align: center;
+          display: none;
+      }
+
+      @media (max-width: 768px) {
+          h1 {
+              font-size: 2.2rem;
+          }
+
+          .container {
+              padding: 20px 15px;
+          }
+
+          .nav-container {
+              flex-direction: column;
+              gap: 15px;
+              padding: 15px 15px;
+          }
+
+          .brand-name {
+              font-size: 1.2rem;
+          }
+
+          .brand-tagline {
+              font-size: 0.6rem;
+          }
+
+          .nav-links {
+              flex-wrap: wrap;
+              justify-content: center;
+              gap: 15px;
+          }
+
+          .nav-link {
+              padding: 8px 15px;
+              font-size: 0.9rem;
+          }
+
+          .review-form,
+          .reviews-section {
+              padding: 25px 15px;
+          }
+
+          .review-header {
+              flex-direction: column;
+              align-items: flex-start;
+              gap: 10px;
+          }
+      }
+  </style>
+</head>
+<body>
+  <div class="nav">
+      <div class="nav-container">
+          <div class="nav-brand">
+              <div class="brand-logo">
+                  <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <circle cx="20" cy="20" r="18" stroke="#e63946" stroke-width="2" fill="none"/>
+                      <circle cx="20" cy="20" r="12" stroke="#e63946" stroke-width="1.5" fill="none"/>
+                      <circle cx="20" cy="20" r="6" fill="#e63946"/>
+                      <rect x="18" y="8" width="4" height="6" fill="#e63946" rx="2"/>
+                      <rect x="18" y="26" width="4" height="6" fill="#e63946" rx="2"/>
+                      <rect x="8" y="18" width="6" height="4" fill="#e63946" rx="2"/>
+                      <rect x="26" y="18" width="6" height="4" fill="#e63946" rx="2"/>
+                  </svg>
+                  <div class="brand-text">
+                      <span class="brand-name">OEM AUTO PARTS</span>
+                      <span class="brand-tagline">Quality • Authentic • Reliable</span>
+                  </div>
+              </div>
+          </div>
+          <div class="nav-links">
+              <a href="index.html" class="nav-link">Home</a>
+              <a href="parts_inventory.html" class="nav-link">Parts Inventory</a>
+              <a href="reviews.html" class="nav-link">Reviews</a>
+              <a href="contact.html" class="nav-link">Contact</a>
+              <a href="profile.html" class="nav-link">Profile</a>
+              <a href="cart.html" class="nav-link cart-link">
+                  Cart (<span id="cart-count">0</span>)
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M3 1h1.5l.3 1.2h12.4c.5 0 .8.4.8.8 0 .1 0 .2-.1.3l-2.5 5c-.2.4-.6.7-1.1.7H7.1l-.3 1.2h9.4c.4 0 .8.4.8.8s-.4.8-.8.8H6c-.3 0-.6-.2-.7-.5L3.1 2H2c-.4 0-.8-.4-.8-.8S1.6 1 2 1h1zm5 14c.8 0 1.5.7 1.5 1.5S8.8 18 8 18s-1.5-.7-1.5-1.5S7.2 15 8 15zm8 0c.8 0 1.5.7 1.5 1.5s-.7 1.5-1.5 1.5-1.5-.7-1.5-1.5.7-1.5 1.5-1.5z"/>
+                  </svg>
+              </a>
+          </div>
+      </div>
+  </div>
+
+  <div class="container">
+      <h1>Customer Reviews</h1>
+
+      <div class="review-form">
+          <h2>Leave a Review</h2>
+          <div class="success-message" id="success-message">
+              Thank you for your review! It will be reviewed and published soon.
+          </div>
+          <form id="review-form">
+              <div class="form-group">
+                  <label for="reviewer-name">Name *</label>
+                  <input type="text" id="reviewer-name" required>
+              </div>
+              <div class="form-group">
+                  <label for="reviewer-email">Email *</label>
+                  <input type="email" id="reviewer-email" required>
+              </div>
+              <div class="form-group">
+                  <label for="product-purchased">Product Purchased</label>
+                  <input type="text" id="product-purchased" placeholder="e.g., 2018 Honda Civic Door Panel">
+              </div>
+              <div class="form-group">
+                  <label>Rating *</label>
+                  <div class="star-rating" id="star-rating">
+                      <span class="star" data-rating="1">★</span>
+                      <span class="star" data-rating="2">★</span>
+                      <span class="star" data-rating="3">★</span>
+                      <span class="star" data-rating="4">★</span>
+                      <span class="star" data-rating="5">★</span>
+                  </div>
+                  <input type="hidden" id="rating-value" required>
+              </div>
+              <div class="form-group">
+                  <label for="review-title">Review Title *</label>
+                  <input type="text" id="review-title" required placeholder="Brief summary of your experience">
+              </div>
+              <div class="form-group">
+                  <label for="review-text">Your Review *</label>
+                  <textarea id="review-text" required placeholder="Tell us about your experience with our parts and service..."></textarea>
+              </div>
+              <button type="submit" class="btn">Submit Review</button>
+          </form>
+      </div>
+
+      <div class="reviews-section">
+          <h2>Customer Reviews (5)</h2>
+          
+          <div class="review-item">
+              <div class="review-header">
+                  <div class="reviewer-info">
+                      <h4>Mike Johnson</h4>
+                      <div class="review-rating">
+                          <span class="star active">★</span>
+                          <span class="star active">★</span>
+                          <span class="star active">★</span>
+                          <span class="star active">★</span>
+                          <span class="star active">★</span>
+                      </div>
+                  </div>
+                  <div class="review-date">January 15, 2024</div>
+              </div>
+              <div class="review-text">
+                  <strong>Perfect fit and great quality!</strong><br>
+                  Ordered a side mirror for my 2019 Toyota Camry and it arrived exactly as described. Installation was straightforward and the quality is just like the original. Fast shipping too!
+              </div>
+              <div class="review-product">Product: 2019 Toyota Camry Side Mirror</div>
+          </div>
+
+          <div class="review-item">
+              <div class="review-header">
+                  <div class="reviewer-info">
+                      <h4>Sarah Chen</h4>
+                      <div class="review-rating">
+                          <span class="star active">★</span>
+                          <span class="star active">★</span>
+                          <span class="star active">★</span>
+                          <span class="star active">★</span>
+                          <span class="star active">★</span>
+                      </div>
+                  </div>
+                  <div class="review-date">January 10, 2024</div>
+              </div>
+              <div class="review-text">
+                  <strong>Excellent customer service</strong><br>
+                  Had some questions about compatibility and the support team was incredibly helpful. The part arrived quickly and was exactly what I needed for my Honda Accord.
+              </div>
+              <div class="review-product">Product: 2017 Honda Accord Headlight Assembly</div>
+          </div>
+
+          <div class="review-item">
+              <div class="review-header">
+                  <div class="reviewer-info">
+                      <h4>David Rodriguez</h4>
+                      <div class="review-rating">
+                          <span class="star active">★</span>
+                          <span class="star active">★</span>
+                          <span class="star active">★</span>
+                          <span class="star active">★</span>
+                          <span class="star">★</span>
+                      </div>
+                  </div>
+                  <div class="review-date">January 8, 2024</div>
+              </div>
+              <div class="review-text">
+                  <strong>Great prices, good quality</strong><br>
+                  Found the part I needed at a much better price than the dealership. Quality is good, though it took a bit longer to ship than expected. Overall satisfied with my purchase.
+              </div>
+              <div class="review-product">Product: 2016 Ford F-150 Tailgate Handle</div>
+          </div>
+
+          <div class="review-item">
+              <div class="review-header">
+                  <div class="reviewer-info">
+                      <h4>Lisa Thompson</h4>
+                      <div class="review-rating">
+                          <span class="star active">★</span>
+                          <span class="star active">★</span>
+                          <span class="star active">★</span>
+                          <span class="star active">★</span>
+                          <span class="star active">★</span>
+                      </div>
+                  </div>
+                  <div class="review-date">January 5, 2024</div>
+              </div>
+              <div class="review-text">
+                  <strong>Saved me hundreds!</strong><br>
+                  My mechanic quoted me $800 for a new bumper. Found the exact same part here for $200. Installation was easy and it looks brand new. Will definitely shop here again!
+              </div>
+              <div class="review-product">Product: 2020 Nissan Altima Front Bumper</div>
+          </div>
+
+          <div class="review-item">
+              <div class="review-header">
+                  <div class="reviewer-info">
+                      <h4>Tom Wilson</h4>
+                      <div class="review-rating">
+                          <span class="star active">★</span>
+                          <span class="star active">★</span>
+                          <span class="star active">★</span>
+                          <span class="star active">★</span>
+                          <span class="star active">★</span>
+                      </div>
+                  </div>
+                  <div class="review-date">January 2, 2024</div>
+              </div>
+              <div class="review-text">
+                  <strong>Professional and reliable</strong><br>
+                  Ordered multiple parts for my restoration project. Everything arrived well-packaged and in perfect condition. The inventory system made it easy to find compatible parts.
+              </div>
+              <div class="review-product">Product: 1995 BMW 3 Series Interior Trim Set</div>
+          </div>
+      </div>
+  </div>
+
+  <script>
+    let selectedRating = 0;
+
+    // Star rating functionality
+    document.querySelectorAll('.star').forEach(star => {
+        star.addEventListener('click', function() {
+            selectedRating = parseInt(this.dataset.rating);
+            document.getElementById('rating-value').value = selectedRating;
+            
+            // Update star display
+            document.querySelectorAll('.star').forEach((s, index) => {
+                if (index < selectedRating) {
+                    s.classList.add('active');
+                } else {
+                    s.classList.remove('active');
+                }
+            });
+        });
+
+        star.addEventListener('mouseover', function() {
+            const hoverRating = parseInt(this.dataset.rating);
+            document.querySelectorAll('.star').forEach((s, index) => {
+                if (index < hoverRating) {
+                    s.style.color = '#ffd700';
+                } else {
+                    s.style.color = '#ddd';
+                }
+            });
+        });
+    });
+
+    document.getElementById('star-rating').addEventListener('mouseleave', function() {
+        document.querySelectorAll('.star').forEach((s, index) => {
+            if (index < selectedRating) {
+                s.style.color = '#ffd700';
+            } else {
+                s.style.color = '#ddd';
+            }
+        });
+    });
+
+    // Form submission
+    document.getElementById('review-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        if (selectedRating === 0) {
+            alert('Please select a rating');
+            return;
+        }
+
+        // Simulate review submission
+        const reviewData = {
+            name: document.getElementById('reviewer-name').value,
+            email: document.getElementById('reviewer-email').value,
+            product: document.getElementById('product-purchased').value,
+            rating: selectedRating,
+            title: document.getElementById('review-title').value,
+            text: document.getElementById('review-text').value,
+            date: new Date().toLocaleDateString()
+        };
+
+        // Store in localStorage for demo (in real app, send to server)
+        let reviews = JSON.parse(localStorage.getItem('pendingReviews') || '[]');
+        reviews.push(reviewData);
+        localStorage.setItem('pendingReviews', JSON.stringify(reviews));
+
+        // Show success message
+        document.getElementById('success-message').style.display = 'block';
+        this.reset();
+        selectedRating = 0;
+        document.querySelectorAll('.star').forEach(s => s.classList.remove('active'));
+
+        // Hide success message after 5 seconds
+        setTimeout(() => {
+            document.getElementById('success-message').style.display = 'none';
+        }, 5000);
+    });
+
+    function updateCartCount() {
+        const cart = JSON.parse(localStorage.getItem('autoPartsCart') || '[]');
+        const count = cart.reduce((total, item) => total + item.quantity, 0);
+        document.getElementById('cart-count').textContent = count;
+    }
+
+    window.addEventListener('load', updateCartCount);
+  </script>
+</body>
+</html>

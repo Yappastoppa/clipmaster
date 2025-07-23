@@ -1,0 +1,139 @@
+import requests
+from bs4 import BeautifulSoup
+from urllib.parse import urljoin
+import csv
+
+# Function to get user input for the make
+def get_user_specified_make(all_makes):
+    print("Available Makes:")
+    for make in sorted(all_makes):
+        print(make)
+    user_input = input("Enter the make you want to scrape (e.g., Toyota): ")
+    return user_input.strip()
+
+# Function to get user input for the model
+def get_user_specified_model(models):
+    print("Available Models for selected Make:")
+    for model in sorted(models):
+        print(model)
+    user_input = input("Enter the model you want to scrape: ")
+    return user_input.strip()
+
+# Base URL
+base_url = "https://www.wilberts.com/premium-auto-parts/parts"
+
+# Read and collect all makes and models from the CSV
+all_makes = {}
+with open('car_parts_data.csv', mode='r', encoding='utf-8') as csv_file:
+    csv_reader = csv.DictReader(csv_file)
+    for row in csv_reader:
+        make = row['Make']
+        model = row['Model']
+        if make not in all_makes:
+            all_makes[make] = set()
+        all_makes[make].add(model)
+
+# Get user-specified make
+specified_make = get_user_specified_make(all_makes.keys())
+
+# Get user-specified model
+specified_model = get_user_specified_model(all_makes[specified_make])
+
+# Construct the CSV file name
+output_filename = f"{specified_make}_{specified_model}_Parts.csv"
+
+# Open the CSV file for writing
+with open(output_filename, mode='w', newline='', encoding='utf-8') as output_file:
+    writer = csv.writer(output_file)
+    writer.writerow(['Title', 'Part Title', 'Price', 'Part Numbers', 'Body Color', 'Stock', 'Tag', 'VIN', 'SKU', 'Fitment Options', 'Core Charge', 'Image URLs'])
+
+    # Re-read the input CSV and process only the selected make and model
+    with open('car_parts_data.csv', mode='r', encoding='utf-8') as csv_file:
+        csv_reader = csv.DictReader(csv_file)
+        for row in csv_reader:
+            if row['Make'] == specified_make and row['Model'] == specified_model:
+                make = row['Make']
+                model = row['Model']
+                stock = row['Stock'].replace('Stock:', '').strip()
+                year = row['Year']
+                url = f"{base_url}/{make}/{model}/{stock}/"
+           
+                while True:
+                    response = requests.get(url)
+                    if response.status_code != 200:
+                        break
+
+                    soup = BeautifulSoup(response.content, 'html.parser')
+                    container = soup.find('div', class_='container metro')
+
+                    if not container:
+                        break
+
+                    links = container.find_all('a', class_='btn btn-lg btn-secondary btn-block', string=lambda x: x and 'VIEW DETAILS' in x.strip())
+                    for link in links:
+                        detail_url = urljoin(base_url, link['href'])
+                        detail_response = requests.get(detail_url)
+                        if detail_response.status_code != 200:
+                            continue
+
+                        detail_soup = BeautifulSoup(detail_response.content, 'html.parser')
+
+                        local_pickup_only = detail_soup.find('div', class_='iis-buy-now-ex-message')
+                        if local_pickup_only and 'Local Pickup Only' in local_pickup_only.text:
+                            continue
+
+                        product_title = detail_soup.find('h2', class_='product_title entry-title')
+                        part_title = product_title.text if product_title else ''
+                        price = detail_soup.find('p', class_='price').text.strip() if detail_soup.find('p', class_='price') else ''
+
+                        product_table = detail_soup.find('table', class_='iis-product-table')
+                        part_numbers, body_color, stock, tag, vin, sku = '', '', '', '', '', ''
+                        if product_table:
+                            for table_row in product_table.find_all('tr'):
+                                th = table_row.find('th')
+                                td = table_row.find('td')
+                                if th and td:
+                                    if 'Part Numbers' in th.text:
+                                        part_numbers = td.text.strip()
+                                    elif 'Body Color' in th.text:
+                                        body_color = td.text.strip()
+                                    elif 'Stock' in th.text:
+                                        stock = td.text.strip()
+                                    elif 'Tag' in th.text:
+                                        tag = td.text.strip()
+                                    elif 'VIN' in th.text:
+                                        vin = td.text.strip()
+                                    elif 'SKU' in th.text:
+                                        sku = td.text.strip()
+
+                        image_container = detail_soup.find('div', class_='imagesiis')
+                        image_urls = []
+                        if image_container:
+                            images = image_container.find_all('img', {'data-src': True})
+                            image_urls = [img['data-src'] for img in images]
+
+                        product_form = detail_soup.find('div', class_='product-form')
+                        fitment_options, core_charge = [], ''  # Corrected this line
+                        if product_form:
+                            fitment_select = product_form.find('select', class_='fitmentx')
+                            if fitment_select:
+                                fitment_options = [option.text.strip() for option in fitment_select.find_all('option') if option.get('value')]
+
+                            core_charge_select = product_form.find('select', id='iiscore')
+                            if core_charge_select:
+                                core_charge_value = core_charge_select.find('option').text.strip()
+                                core_charge = core_charge_value
+
+                        title = f"{make} {model} {year} {part_title}"  # Include year in the title
+                        images_combined = ', '.join(image_urls)
+                        fitment_combined = ', '.join(fitment_options)
+
+                        # Write data to CSV
+                        writer.writerow([title, part_title, price, part_numbers, body_color, stock, tag, vin, sku, fitment_combined, core_charge, images_combined])
+
+                    next_page_link = soup.find('a', string='Next')
+                    if next_page_link and 'disabled' not in next_page_link.parent.get('class', []):
+                        next_page_url = urljoin(base_url, next_page_link['href'])
+                        url = next_page_url
+                    else:
+                        break

@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact Us - Auto Parts Shop</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sofia+Sans+Extra+Condensed:ital,wght@0,400;0,600;0,800;1,800&display=swap" rel="stylesheet">
+  <style>
+      :root {
+          --racing-red: #e63946;
+          --deep-black: #1a1a1a;
+          --chrome-silver: #c5c6c7;
+          --steel-blue: #457b9d;
+          --white: #ffffff;
+          --shadow: rgba(26, 26, 26, 0.2);
+          --accent-orange: #ff6b35;
+      }
+
+      * {
+          box-sizing: border-box;
+          margin: 0;
+          padding: 0;
+      }
+
+      body { 
+          font-family: "Sofia Sans Extra Condensed", sans-serif; 
+          background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+          color: var(--deep-black);
+          min-height: 100vh;
+      }
+
+      .nav { 
+          background: linear-gradient(135deg, var(--deep-black) 0%, #2d3436 100%);
+          padding: 0;
+          box-shadow: 0 4px 20px var(--shadow);
+          position: sticky;
+          top: 0;
+          z-index: 100;
+          border-bottom: 3px solid var(--racing-red);
+      }
+
+      .nav-container {
+          max-width: 1200px;
+          margin: 0 auto;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 15px 20px;
+      }
+
+      .nav-brand {
+          display: flex;
+          align-items: center;
+      }
+
+      .brand-logo {
+          display: flex;
+          align-items: center;
+          gap: 15px;
+      }
+
+      .brand-text {
+          display: flex;
+          flex-direction: column;
+          line-height: 1.2;
+      }
+
+      .brand-name {
+          font-size: 1.4rem;
+          font-weight: 800;
+          color: var(--white);
+          letter-spacing: 1px;
+      }
+
+      .brand-tagline {
+          font-size: 0.7rem;
+          color: var(--chrome-silver);
+          text-transform: uppercase;
+          letter-spacing: 1.5px;
+          margin-top: 2px;
+      }
+
+      .nav-links {
+          display: flex;
+          align-items: center;
+          gap: 30px;
+      }
+
+      .nav-link {
+          color: var(--white);
+          text-decoration: none;
+          padding: 10px 20px;
+          border-radius: 30px;
+          font-weight: 600;
+          font-size: 1rem;
+          transition: all 0.3s ease;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          position: relative;
+      }
+
+      .nav-link:hover {
+          background: linear-gradient(135deg, var(--racing-red) 0%, var(--accent-orange) 100%);
+          color: var(--white);
+          transform: translateY(-2px);
+          box-shadow: 0 5px 15px rgba(230, 57, 70, 0.4);
+      }
+
+      .cart-link {
+          background: linear-gradient(135deg, var(--steel-blue) 0%, var(--racing-red) 100%);
+          font-weight: 700;
+      }
+
+      .cart-link:hover {
+          background: linear-gradient(135deg, var(--racing-red) 0%, var(--accent-orange) 100%);
+          transform: translateY(-3px) scale(1.05);
+      }
+
+      .container { 
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 40px 20px;
+          text-align: center;
+      }
+
+      h1 {
+          font-size: 3rem;
+          font-weight: 800;
+          color: var(--ebony);
+          margin-bottom: 40px;
+          text-shadow: 2px 2px 4px var(--shadow);
+      }
+
+      .contact-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+          gap: 30px;
+          margin: 40px 0;
+      }
+
+      .contact-card {
+          background: var(--white);
+          padding: 30px;
+          border-radius: 20px;
+          box-shadow: 0 8px 25px var(--shadow);
+          text-align: left;
+      }
+
+      .contact-card h2 {
+          font-size: 1.8rem;
+          font-weight: 600;
+          color: var(--ebony);
+          margin-bottom: 20px;
+      }
+
+      .contact-card p {
+          font-size: 1.1rem;
+          margin-bottom: 15px;
+          color: var(--ebony);
+          opacity: 0.8;
+      }
+
+      .contact-card strong {
+          color: var(--ebony);
+          opacity: 1;
+      }
+
+      .contact-form {
+          background: var(--white);
+          padding: 40px;
+          border-radius: 20px;
+          box-shadow: 0 8px 25px var(--shadow);
+          margin-top: 30px;
+          text-align: left;
+      }
+
+      .form-group {
+          margin-bottom: 20px;
+      }
+
+      .form-group label {
+          display: block;
+          margin-bottom: 8px;
+          font-weight: 600;
+          color: var(--ebony);
+      }
+
+      .form-group input,
+      .form-group textarea {
+          width: 100%;
+          padding: 12px 15px;
+          border: 2px solid var(--buff);
+          border-radius: 10px;
+          font-size: 1rem;
+          font-family: inherit;
+          transition: border-color 0.3s ease;
+      }
+
+      .form-group textarea {
+          height: 120px;
+          resize: vertical;
+      }
+
+      .form-group input:focus,
+      .form-group textarea:focus {
+          outline: none;
+          border-color: var(--ebony);
+      }
+
+      .btn {
+          background: var(--ebony);
+          color: var(--white);
+          border: none;
+          padding: 15px 30px;
+          border-radius: 50px;
+          font-size: 1.1rem;
+          font-weight: 600;
+          font-family: inherit;
+          cursor: pointer;
+          transition: all 0.3s ease;
+      }
+
+      .btn:hover {
+          background: var(--buff);
+          color: var(--ebony);
+          transform: translateY(-2px);
+          box-shadow: 0 5px 15px var(--shadow);
+      }
+
+      @media (max-width: 768px) {
+          h1 {
+              font-size: 2.2rem;
+          }
+
+          .nav-container {
+              flex-direction: column;
+              gap: 15px;
+              padding: 15px 15px;
+          }
+
+          .brand-name {
+              font-size: 1.2rem;
+          }
+
+          .brand-tagline {
+              font-size: 0.6rem;
+          }
+
+          .nav-links {
+              flex-wrap: wrap;
+              justify-content: center;
+              gap: 15px;
+          }
+
+          .nav-link {
+              padding: 8px 15px;
+              font-size: 0.9rem;
+          }
+
+          .contact-grid {
+              grid-template-columns: 1fr;
+          }
+
+          .container {
+              padding: 20px 15px;
+          }
+
+          .contact-form {
+              padding: 25px 15px;
+          }
+      }
+
+      @media (max-width: 480px) {
+          h1 {
+              font-size: 1.8rem;
+              margin-bottom: 20px;
+          }
+
+          .container {
+              padding: 15px 10px;
+          }
+
+          .nav a {
+              margin: 0 2px;
+              padding: 6px 8px;
+              font-size: 0.8rem;
+          }
+
+          .contact-card {
+              padding: 20px 15px;
+          }
+
+          .form-group input,
+          .form-group textarea {
+              font-size: 16px; /* Prevents zoom on iOS */
+          }
+
+          .btn {
+              width: 100%;
+              font-size: 16px;
+          }
+      }
+  </style>
+</head>
+<body>
+  <div class="nav">
+      <div class="nav-container">
+          <div class="nav-brand">
+              <div class="brand-logo">
+                  <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <circle cx="20" cy="20" r="18" stroke="#e63946" stroke-width="2" fill="none"/>
+                      <circle cx="20" cy="20" r="12" stroke="#e63946" stroke-width="1.5" fill="none"/>
+                      <circle cx="20" cy="20" r="6" fill="#e63946"/>
+                      <rect x="18" y="8" width="4" height="6" fill="#e63946" rx="2"/>
+                      <rect x="18" y="26" width="4" height="6" fill="#e63946" rx="2"/>
+                      <rect x="8" y="18" width="6" height="4" fill="#e63946" rx="2"/>
+                      <rect x="26" y="18" width="6" height="4" fill="#e63946" rx="2"/>
+                  </svg>
+                  <div class="brand-text">
+                      <span class="brand-name">OEM AUTO PARTS</span>
+                      <span class="brand-tagline">Quality • Authentic • Reliable</span>
+                  </div>
+              </div>
+          </div>
+          <div class="nav-links">
+              <a href="index.html" class="nav-link">Home</a>
+              <a href="parts_inventory.html" class="nav-link">Parts Inventory</a>
+              <a href="reviews.html" class="nav-link">Reviews</a>
+              <a href="contact.html" class="nav-link">Contact</a>
+              <a href="profile.html" class="nav-link">Profile</a>
+              <a href="cart.html" class="nav-link cart-link">
+                  Cart (<span id="cart-count">0</span>)
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M3 1h1.5l.3 1.2h12.4c.5 0 .8.4.8.8 0 .1 0 .2-.1.3l-2.5 5c-.2.4-.6.7-1.1.7H7.1l-.3 1.2h9.4c.4 0 .8.4.8.8s-.4.8-.8.8H6c-.3 0-.6-.2-.7-.5L3.1 2H2c-.4 0-.8-.4-.8-.8S1.6 1 2 1h1zm5 14c.8 0 1.5.7 1.5 1.5S8.8 18 8 18s-1.5-.7-1.5-1.5S7.2 15 8 15zm8 0c.8 0 1.5.7 1.5 1.5s-.7 1.5-1.5 1.5-1.5-.7-1.5-1.5.7-1.5 1.5-1.5z"/>
+                  </svg>
+              </a>
+          </div>
+      </div>
+  </div>
+
+  <div class="container">
+      <h1>Contact Us</h1>
+
+      <div class="contact-grid">
+          <div class="contact-card">
+              <h2>Business Information</h2>
+              <p><strong>Company:</strong> Premium Auto Parts</p>
+              <p><strong>Phone:</strong> (555) 123-AUTO</p>
+              <p><strong>Email:</strong> info@premiumautoparts.com</p>
+              <p><strong>Address:</strong> 123 Auto Parts Blvd<br>
+              Parts City, PC 12345</p>
+              <p><strong>Hours:</strong><br>
+              Mon-Fri: 8:00 AM - 6:00 PM<br>
+              Saturday: 9:00 AM - 5:00 PM<br>
+              Sunday: 10:00 AM - 4:00 PM</p>
+              <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--azure-web);">
+                  <p><strong>Follow Us:</strong></p>
+                  <div style="margin-top: 10px;">
+                      <span style="margin-right: 15px;">📘 Facebook</span>
+                      <span style="margin-right: 15px;">📷 Instagram</span>
+                      <span>🐦 Twitter</span>
+                  </div>
+              </div>
+          </div>
+
+          <div class="contact-card">
+              <h2>Shipping & Returns</h2>
+              <p><strong>Shipping:</strong> We ship nationwide with tracking</p>
+              <p><strong>Processing Time:</strong> 1-2 business days</p>
+              <p><strong>Delivery Time:</strong> 3-7 business days</p>
+              <p><strong>Returns:</strong> 30-day return policy</p>
+              <p><strong>Warranty:</strong> All parts include manufacturer warranty</p>
+              <p><strong>Support:</strong> Free technical support included</p>
+          </div>
+      </div>
+
+      <div class="contact-form">
+          <h2 style="text-align: center; margin-bottom: 30px;">Send us a Message</h2>
+          <form id="contact-form">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                  <div class="form-group">
+                      <label for="firstName">First Name *</label>
+                      <input type="text" id="firstName" required>
+                  </div>
+                  <div class="form-group">
+                      <label for="lastName">Last Name *</label>
+                      <input type="text" id="lastName" required>
+                  </div>
+              </div>
+              <div class="form-group">
+                  <label for="email">Email *</label>
+                  <input type="email" id="email" required>
+              </div>
+              <div class="form-group">
+                  <label for="phone">Phone</label>
+                  <input type="tel" id="phone">
+              </div>
+              <div class="form-group">
+                  <label for="subject">Subject *</label>
+                  <input type="text" id="subject" required>
+              </div>
+              <div class="form-group">
+                  <label for="message">Message *</label>
+                  <textarea id="message" required placeholder="Please describe your inquiry or the part you're looking for..."></textarea>
+              </div>
+              <div style="text-align: center;">
+                  <button type="submit" class="btn">Send Message</button>
+              </div>
+          </form>
+      </div>
+  </div>
+
+  <script>
+    function updateCartCount() {
+      const cart = JSON.parse(localStorage.getItem('autoPartsCart') || '[]');
+      const count = cart.reduce((total, item) => total + item.quantity, 0);
+      document.getElementById('cart-count').textContent = count;
+    }
+
+    document.getElementById('contact-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      alert('Thank you for your message! We will get back to you within 24 hours.');
+      this.reset();
+    });
+
+    window.addEventListener('load', updateCartCount);
+  </script>
+</body>
+</html>

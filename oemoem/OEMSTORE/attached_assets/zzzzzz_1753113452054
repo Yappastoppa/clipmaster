@@ -1,0 +1,53 @@
+import requests
+from bs4 import BeautifulSoup
+import logging
+import json
+
+# Set up logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+def scrape_single_part(part_number, headers):
+    url = f"https://www.ebay.com/itm/{part_number}"
+    details = {"Part Number": part_number, "URL": url}
+    
+    try:
+        response = requests.get(url, headers=headers)
+        if response.status_code != 200:
+            logging.error(f"Failed to retrieve part page: {response.status_code}")
+            return details
+        
+        soup = BeautifulSoup(response.content, 'html.parser')
+        
+        # Extract all text details
+        text_elements = soup.find_all(['div', 'span', 'li'])
+        for element in text_elements:
+            label = element.get('class')
+            if label:
+                label = ' '.join(label)
+                details[label] = element.get_text(strip=True)
+        
+        # Extract image URLs
+        image_elements = soup.find_all('img')
+        image_urls = [img['src'] for img in image_elements if 'src' in img.attrs]
+        details["Image URLs"] = image_urls
+        
+        return details
+    except requests.RequestException as e:
+        logging.error(f"Error retrieving eBay part data: {e}")
+        return details
+
+headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+    'Accept-Language': 'en-US,en;q=0.5',
+    'Connection': 'keep-alive'
+}
+
+part_number = "376002773849"  # Replace with the actual part number you want to scrape
+data = scrape_single_part(part_number, headers)
+
+# Save data to JSON
+with open(f'{part_number}_data.json', 'w', encoding='utf-8') as f:
+    json.dump(data, f, indent=4)
+
+print(f"Scraped data saved to {part_number}_data.json")

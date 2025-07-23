@@ -1,0 +1,1414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Include PapaParse for any future needs (inventory still uses custom parser) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+  <script src="security.js"></script>
+  <script src="tracking.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Auto Parts Shop - Home</title>
+  <meta name="description" content="Find the best OEM auto parts for your vehicle. Browse donor cars and quality parts with fast shipping.">
+  <meta name="theme-color" content="#575c55">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiByeD0iMzIiIGZpbGw9IiM1NzVjNTUiLz48L3N2Zz4">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sofia+Sans+Extra+Condensed:ital,wght@0,400;0,600;0,800;1,800&display=swap" rel="stylesheet">
+  <style>
+      :root {
+          --racing-red: #e63946;
+          --deep-black: #1a1a1a;
+          --chrome-silver: #c5c6c7;
+          --steel-blue: #457b9d;
+          --white: #ffffff;
+          --shadow: rgba(26, 26, 26, 0.2);
+          --accent-orange: #ff6b35;
+      }
+
+      * {
+          box-sizing: border-box;
+          margin: 0;
+          padding: 0;
+      }
+
+      body { 
+          font-family: "Sofia Sans Extra Condensed", sans-serif; 
+          background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+          color: var(--deep-black);
+          min-height: 100vh;
+      }
+
+      .nav { 
+          background: linear-gradient(135deg, var(--deep-black) 0%, #2d3436 100%);
+          padding: 0;
+          box-shadow: 0 4px 20px var(--shadow);
+          position: sticky;
+          top: 0;
+          z-index: 100;
+          border-bottom: 3px solid var(--racing-red);
+      }
+
+      .nav-container {
+          max-width: 1200px;
+          margin: 0 auto;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 15px 20px;
+      }
+
+      .nav-brand {
+          display: flex;
+          align-items: center;
+      }
+
+      .brand-logo {
+          display: flex;
+          align-items: center;
+          gap: 15px;
+      }
+
+      .brand-text {
+          display: flex;
+          flex-direction: column;
+          line-height: 1.2;
+      }
+
+      .brand-name {
+          font-size: 1.4rem;
+          font-weight: 800;
+          color: var(--white);
+          letter-spacing: 1px;
+      }
+
+      .brand-tagline {
+          font-size: 0.7rem;
+          color: var(--chrome-silver);
+          text-transform: uppercase;
+          letter-spacing: 1.5px;
+          margin-top: 2px;
+      }
+
+      .nav-links {
+          display: flex;
+          align-items: center;
+          gap: 30px;
+      }
+
+      .nav-link {
+          color: var(--white);
+          text-decoration: none;
+          padding: 10px 20px;
+          border-radius: 30px;
+          font-weight: 600;
+          font-size: 1rem;
+          transition: all 0.3s ease;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          position: relative;
+      }
+
+      .nav-link:hover {
+          background: linear-gradient(135deg, var(--racing-red) 0%, var(--accent-orange) 100%);
+          color: var(--white);
+          transform: translateY(-2px);
+          box-shadow: 0 5px 15px rgba(230, 57, 70, 0.4);
+      }
+
+      .cart-link {
+          background: linear-gradient(135deg, var(--steel-blue) 0%, var(--racing-red) 100%);
+          font-weight: 700;
+      }
+
+      .cart-link:hover {
+          background: linear-gradient(135deg, var(--racing-red) 0%, var(--accent-orange) 100%);
+          transform: translateY(-3px) scale(1.05);
+      }
+
+      .container { 
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 40px 20px;
+      }
+
+      .loading-spinner {
+          display: inline-block;
+          width: 40px;
+          height: 40px;
+          border: 4px solid var(--azure-web);
+          border-radius: 50%;
+          border-top-color: var(--ebony);
+          animation: spin 1s ease-in-out infinite;
+          margin: 20px auto;
+      }
+
+      @keyframes spin {
+          to { transform: rotate(360deg); }
+      }
+
+      .loading-message {
+          text-align: center;
+          color: var(--ebony);
+          margin: 20px 0;
+          font-weight: 600;
+      }
+
+      .error-message {
+          background: #e74c3c;
+          color: white;
+          padding: 15px;
+          border-radius: 10px;
+          margin: 20px 0;
+          text-align: center;
+      }
+
+      .hero-section {
+          background: linear-gradient(135deg, var(--white) 0%, #f8f9fa 100%);
+          padding: 60px 40px;
+          border-radius: 20px;
+          box-shadow: 0 10px 30px var(--shadow);
+          text-align: center;
+          margin-bottom: 40px;
+          border: 3px solid var(--steel-blue);
+      }
+
+      h1 {
+          font-size: 3.5rem;
+          font-weight: 800;
+          color: var(--deep-black);
+          margin-bottom: 10px;
+          text-shadow: 2px 2px 4px var(--shadow);
+          letter-spacing: 2px;
+      }
+
+      .hero-section h2 {
+          font-size: 1.3rem;
+          font-weight: 600;
+          color: var(--steel-blue);
+          margin-bottom: 20px;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+      }
+
+      h2 {
+          font-size: 2rem;
+          font-weight: 600;
+          color: var(--deep-black);
+          margin: 40px 0 20px 0;
+      }
+
+      .hero-section p {
+          font-size: 1.3rem;
+          margin-bottom: 30px;
+          color: var(--deep-black);
+          opacity: 0.8;
+          max-width: 600px;
+          margin-left: auto;
+          margin-right: auto;
+          line-height: 1.6;
+      }
+
+      p {
+          font-size: 1.2rem;
+          margin-bottom: 30px;
+          color: var(--deep-black);
+          opacity: 0.8;
+      }
+
+      .hero-features {
+          display: flex;
+          justify-content: center;
+          gap: 40px;
+          margin-top: 30px;
+      }
+
+      .feature {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          font-weight: 600;
+          color: var(--deep-black);
+      }
+
+      .feature-icon {
+          width: 35px;
+          height: 35px;
+          background: linear-gradient(135deg, var(--racing-red) 0%, var(--accent-orange) 100%);
+          color: var(--white);
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 700;
+          font-size: 1.1rem;
+      }
+
+      form {
+          background: var(--white);
+          padding: 30px;
+          border-radius: 15px;
+          box-shadow: 0 8px 25px var(--shadow);
+          margin: 30px 0;
+      }
+
+      .search-bar { 
+          padding: 15px 20px;
+          width: 70%;
+          border: 2px solid var(--steel-blue);
+          border-radius: 50px;
+          font-size: 1.1rem;
+          font-family: inherit;
+          outline: none;
+          transition: all 0.3s ease;
+      }
+
+      .search-bar:focus {
+          border-color: var(--racing-red);
+          box-shadow: 0 0 15px rgba(230, 57, 70, 0.3);
+      }
+
+      button {
+          background: var(--racing-red);
+          color: var(--white);
+          border: none;
+          padding: 15px 30px;
+          margin-left: 15px;
+          border-radius: 50px;
+          font-size: 1.1rem;
+          font-weight: 600;
+          font-family: inherit;
+          cursor: pointer;
+          transition: all 0.3s ease;
+      }
+
+      button:hover {
+          background: var(--accent-orange);
+          color: var(--white);
+          transform: translateY(-2px);
+          box-shadow: 0 5px 15px var(--shadow);
+      }
+
+      .search-results { 
+          margin-top: 20px;
+          text-align: left;
+          max-height: 400px;
+          overflow-y: auto;
+          border: 2px solid var(--steel-blue);
+          border-radius: 15px;
+          background: var(--white);
+          box-shadow: 0 8px 25px var(--shadow);
+          display: none;
+      }
+
+      .search-result-item { 
+          padding: 15px;
+          cursor: pointer;
+          border-bottom: 1px solid var(--chrome-silver);
+          display: flex;
+          align-items: center;
+          transition: all 0.3s ease;
+          font-size: 1.1rem;
+      }
+
+      .search-result-item:hover { 
+          background: #f8f9fa;
+          transform: translateX(5px);
+      }
+
+      .search-result-item:last-child { 
+          border-bottom: none;
+      }
+
+      .search-result-item img { 
+          width: 60px;
+          height: 60px;
+          object-fit: cover;
+          margin-right: 15px;
+          border-radius: 8px;
+          border: 2px solid var(--steel-blue);
+      }
+
+      #donor-cars-section { 
+          margin-top: 60px;
+          background: var(--white);
+          padding: 40px;
+          border-radius: 20px;
+          box-shadow: 0 8px 25px var(--shadow);
+      }
+
+      #donor-cars-list { 
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+          gap: 25px;
+          margin-top: 30px;
+      }
+
+      .donor-car-card { 
+          border: 2px solid var(--steel-blue);
+          border-radius: 15px;
+          padding: 20px;
+          cursor: pointer;
+          background: var(--white);
+          transition: all 0.3s ease;
+          box-shadow: 0 4px 15px var(--shadow);
+          position: relative;
+      }
+
+      .donor-car-card:hover {
+          transform: translateY(-8px);
+          box-shadow: 0 12px 30px var(--shadow);
+          border-color: var(--racing-red);
+      }
+
+      .donor-car-card img { 
+          width: 100%;
+          height: 200px;
+          object-fit: cover;
+          border-radius: 10px;
+          margin-bottom: 15px;
+      }
+
+      .donor-car-card h3 {
+          font-size: 1.3rem;
+          font-weight: 600;
+          color: var(--deep-black);
+          margin-bottom: 10px;
+      }
+
+      .donor-car-card p {
+          font-size: 1rem;
+          margin-bottom: 8px;
+          opacity: 0.8;
+      }
+
+      .view-count {
+          position: absolute;
+          top: 10px;
+          right: 10px;
+          background: rgba(26, 26, 26, 0.8);
+          color: var(--white);
+          padding: 5px 10px;
+          border-radius: 15px;
+          font-size: 0.8rem;
+          display: flex;
+          align-items: center;
+          gap: 5px;
+      }
+
+      @media (max-width: 768px) {
+          .container {
+              padding: 20px 15px;
+          }
+
+          .nav-container {
+              flex-direction: column;
+              gap: 15px;
+              padding: 15px 15px;
+          }
+
+          .brand-name {
+              font-size: 1.2rem;
+          }
+
+          .brand-tagline {
+              font-size: 0.6rem;
+          }
+
+          .nav-links {
+              flex-wrap: wrap;
+              justify-content: center;
+              gap: 15px;
+          }
+
+          .nav-link {
+              padding: 8px 15px;
+              font-size: 0.9rem;
+          }
+
+          .hero-section {
+              padding: 40px 20px;
+          }
+
+          .hero-section h1 {
+              font-size: 2.5rem;
+              letter-spacing: 1px;
+          }
+
+          .hero-section h2 {
+              font-size: 1.1rem;
+          }
+
+          .hero-features {
+              flex-direction: column;
+              gap: 20px;
+              align-items: center;
+          }
+
+          .search-bar {
+              width: 100%;
+              margin-bottom: 15px;
+              font-size: 16px; /* Prevents zoom on iOS */
+              padding: 12px 16px;
+          }
+
+          button {
+              margin-left: 0;
+              width: 100%;
+              padding: 12px 20px;
+              font-size: 16px;
+          }
+
+          #donor-cars-list {
+              grid-template-columns: 1fr;
+              gap: 20px;
+          }
+
+          .donor-car-card {
+              padding: 15px;
+          }
+
+          .search-result-item {
+              padding: 12px;
+              font-size: 1rem;
+          }
+
+          .search-result-item img {
+              width: 50px;
+              height: 50px;
+          }
+
+          .hot-cars-slideshow {
+              height: 280px;
+          }
+
+          .hot-car-item {
+              height: 240px;
+              padding: 12px;
+          }
+
+          .hot-car-item img {
+              height: 130px;
+          }
+
+          .slideshow-nav {
+              width: 40px;
+              height: 40px;
+              font-size: 1.1rem;
+          }
+
+          .slideshow-nav.prev {
+              left: -10px;
+          }
+
+          .slideshow-nav.next {
+              right: -10px;
+          }
+
+          .faq-button {
+              width: 50px;
+              height: 50px;
+              bottom: 20px;
+              right: 20px;
+              font-size: 1.2rem;
+          }
+
+          .faq-content {
+              margin: 20px;
+              max-width: calc(100% - 40px);
+              padding: 20px;
+          }
+      }
+
+      .hot-cars-section {
+          background: var(--white);
+          padding: 25px;
+          border-radius: 15px;
+          box-shadow: 0 4px 15px var(--shadow);
+          margin: 30px 0;
+          position: relative;
+      }
+
+      .hot-cars-section h3 {
+          font-size: 1.5rem;
+          color: var(--deep-black);
+          margin-bottom: 20px;
+          text-align: center;
+      }
+
+      .hot-cars-slideshow {
+          position: relative;
+          overflow: hidden;
+          border-radius: 15px;
+          background: var(--white);
+          padding: 10px;
+          height: 320px;
+      }
+
+      .hot-cars-container {
+          display: flex;
+          transition: transform 0.8s ease;
+          width: calc(100% * 6); /* 6 items total */
+          height: 100%;
+      }
+
+      .hot-car-item {
+          flex: 0 0 calc(100% / 6); /* Each item takes 1/6 of container width */
+          width: calc(100% / 6);
+          background: var(--white);
+          border: 2px solid var(--steel-blue);
+          border-radius: 15px;
+          padding: 15px;
+          position: relative;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          display: flex;
+          flex-direction: column;
+          height: 280px;
+          box-sizing: border-box;
+      }
+
+      .hot-car-item:hover {
+          transform: translateY(-8px);
+          border-color: var(--racing-red);
+          box-shadow: 0 12px 25px var(--shadow);
+      }
+
+      .hot-car-item img {
+          width: 100%;
+          height: 150px;
+          object-fit: cover;
+          border-radius: 10px;
+          margin-bottom: 10px;
+          flex-shrink: 0;
+      }
+
+      .hot-car-item h4 {
+          font-size: 1.1rem;
+          font-weight: 600;
+          color: var(--deep-black);
+          margin-bottom: 8px;
+          line-height: 1.3;
+      }
+
+      .hot-car-item p {
+          font-size: 0.9rem;
+          color: var(--deep-black);
+          opacity: 0.7;
+          margin: 3px 0;
+          line-height: 1.4;
+      }
+
+      .slideshow-nav {
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          background: var(--racing-red);
+          color: var(--white);
+          border: none;
+          width: 45px;
+          height: 45px;
+          border-radius: 50%;
+          font-size: 1.3rem;
+          cursor: pointer;
+          z-index: 10;
+          transition: all 0.3s ease;
+          box-shadow: 0 4px 15px var(--shadow);
+      }
+
+      .slideshow-nav:hover {
+          background: var(--accent-orange);
+          transform: translateY(-50%) scale(1.15);
+          box-shadow: 0 6px 20px var(--shadow);
+      }
+
+      .slideshow-nav.prev {
+          left: -15px;
+      }
+
+      .slideshow-nav.next {
+          right: -15px;
+      }
+
+      .faq-button {
+          position: fixed;
+          bottom: 30px;
+          right: 30px;
+          width: 60px;
+          height: 60px;
+          background: var(--racing-red);
+          color: var(--white);
+          border: none;
+          border-radius: 50%;
+          font-size: 1.5rem;
+          font-weight: bold;
+          cursor: pointer;
+          box-shadow: 0 4px 15px var(--shadow);
+          transition: all 0.3s ease;
+          z-index: 1000;
+      }
+
+      .faq-button:hover {
+          background: var(--accent-orange);
+          transform: scale(1.1);
+      }
+
+      .faq-modal {
+          display: none;
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0, 0, 0, 0.5);
+          z-index: 1001;
+      }
+
+      .faq-content {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          background: var(--white);
+          padding: 30px;
+          border-radius: 15px;
+          max-width: 600px;
+          max-height: 80vh;
+          overflow-y: auto;
+          box-shadow: 0 10px 30px var(--shadow);
+      }
+
+      .faq-close {
+          position: absolute;
+          top: 15px;
+          right: 20px;
+          background: none;
+          border: none;
+          font-size: 1.5rem;
+          cursor: pointer;
+          color: var(--deep-black);
+      }
+
+      .faq-item {
+          margin-bottom: 20px;
+          border-bottom: 1px solid var(--chrome-silver);
+          padding-bottom: 15px;
+      }
+
+      .faq-question {
+          font-weight: 600;
+          color: var(--deep-black);
+          margin-bottom: 8px;
+          cursor: pointer;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+      }
+
+      .faq-answer {
+          color: var(--deep-black);
+          opacity: 0.8;
+          line-height: 1.5;
+          display: none;
+      }
+
+      .faq-answer.active {
+          display: block;
+      }
+
+      @media (max-width: 480px) {
+          h1 {
+              font-size: 1.8rem;
+              margin-bottom: 20px;
+          }
+
+          h2 {
+              font-size: 1.5rem;
+              margin: 30px 0 15px 0;
+          }
+
+          .container {
+              padding: 15px 10px;
+          }
+
+          .nav a {
+              margin: 0 2px;
+              padding: 6px 8px;
+              font-size: 0.8rem;
+          }
+
+          form {
+              padding: 20px 15px;
+          }
+
+          .search-bar {
+              padding: 10px 14px;
+              border-radius: 25px;
+          }
+
+          button {
+              padding: 10px 16px;
+              border-radius: 25px;
+          }
+
+          .quick-filters {
+              padding: 15px;
+              margin: 20px 0;
+          }
+
+          #donor-cars-section {
+              padding: 25px 15px;
+          }
+
+          .donor-car-card h3 {
+              font-size: 1.1rem;
+          }
+
+          .donor-car-card p {
+              font-size: 0.9rem;
+          }
+      }
+  </style>
+</head>
+<body>
+  <div class="nav">
+      <div class="nav-container">
+          <div class="nav-brand">
+              <div class="brand-logo">
+                  <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <circle cx="20" cy="20" r="18" stroke="#e63946" stroke-width="2" fill="none"/>
+                      <circle cx="20" cy="20" r="12" stroke="#e63946" stroke-width="1.5" fill="none"/>
+                      <circle cx="20" cy="20" r="6" fill="#e63946"/>
+                      <rect x="18" y="8" width="4" height="6" fill="#e63946" rx="2"/>
+                      <rect x="18" y="26" width="4" height="6" fill="#e63946" rx="2"/>
+                      <rect x="8" y="18" width="6" height="4" fill="#e63946" rx="2"/>
+                      <rect x="26" y="18" width="6" height="4" fill="#e63946" rx="2"/>
+                  </svg>
+                  <div class="brand-text">
+                      <span class="brand-name">OEM AUTO PARTS</span>
+                      <span class="brand-tagline">Quality • Authentic • Reliable</span>
+                  </div>
+              </div>
+          </div>
+          <div class="nav-links">
+              <a href="index.html" class="nav-link">Home</a>
+              <a href="parts_inventory.html" class="nav-link">Parts Inventory</a>
+              <a href="reviews.html" class="nav-link">Reviews</a>
+              <a href="contact.html" class="nav-link">Contact</a>
+              <a href="profile.html" class="nav-link">Profile</a>
+              <a href="cart.html" class="nav-link cart-link">
+                  Cart (<span id="cart-count">0</span>)
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M3 1h1.5l.3 1.2h12.4c.5 0 .8.4.8.8 0 .1 0 .2-.1.3l-2.5 5c-.2.4-.6.7-1.1.7H7.1l-.3 1.2h9.4c.4 0 .8.4.8.8s-.4.8-.8.8H6c-.3 0-.6-.2-.7-.5L3.1 2H2c-.4 0-.8-.4-.8-.8S1.6 1 2 1h1zm5 14c.8 0 1.5.7 1.5 1.5S8.8 18 8 18s-1.5-.7-1.5-1.5S7.2 15 8 15zm8 0c.8 0 1.5.7 1.5 1.5s-.7 1.5-1.5 1.5-1.5-.7-1.5-1.5.7-1.5 1.5-1.5z"/>
+                  </svg>
+              </a>
+          </div>
+      </div>
+  </div>
+
+  <div class="container">
+      <div class="hero-section">
+          <h1>OEM AUTO PARTS</h1>
+          <h2>Premium Original Equipment Manufacturer Parts</h2>
+          <p>Your trusted source for authentic OEM auto parts. Quality guaranteed, professionally sourced from certified donor vehicles.</p>
+          <div class="hero-features">
+              <div class="feature">
+                  <div class="feature-icon">✓</div>
+                  <span>100% Authentic OEM Parts</span>
+              </div>
+              <div class="feature">
+                  <div class="feature-icon">🚚</div>
+                  <span>Fast & Secure Shipping</span>
+              </div>
+              <div class="feature">
+                  <div class="feature-icon">🛡️</div>
+                  <span>Quality Warranty</span>
+              </div>
+          </div>
+      </div>
+
+      <h2>Search for a Part</h2>
+      <form onsubmit="return submitSearch()">
+          <input type="text" id="search-bar" class="search-bar" placeholder="Search by part name, car model, year, or keywords..." onkeyup="searchParts()">
+          <button type="submit">Advanced Search</button>
+      </form>
+      <div id="search-results" class="search-results"></div>
+
+      <!-- Hot Cars Slideshow -->
+      <div class="hot-cars-section">
+        <h3>🔥 Hot Cars - Trending Now</h3>
+        <div class="hot-cars-slideshow">
+          <button class="slideshow-nav prev" onclick="changeHotCarSlide(-1)">‹</button>
+          <div class="hot-cars-container" id="hot-cars-container">
+            <!-- Hot cars will be loaded here -->
+          </div>
+          <button class="slideshow-nav next" onclick="changeHotCarSlide(1)">›</button>
+        </div>
+      </div>
+
+      <!-- Donor Cars Section -->
+      <section id="donor-cars-section">
+          <h2>Available Donor Cars</h2>
+          <div id="loading-donor-cars" class="loading-message" style="display: none;">
+              <div class="loading-spinner"></div>
+              <p>Loading donor cars...</p>
+          </div>
+          <div id="donor-cars-error" class="error-message" style="display: none;">
+              Failed to load donor cars. Please refresh the page.
+          </div>
+          <div id="donor-cars-list"></div>
+      </section>
+  </div>
+
+  <!-- FAQ Floating Button -->
+  <button class="faq-button" onclick="toggleFAQ()">?</button>
+
+  <!-- FAQ Modal -->
+  <div id="faq-modal" class="faq-modal" onclick="closeFAQ()">
+    <div class="faq-content" onclick="event.stopPropagation()">
+      <button class="faq-close" onclick="closeFAQ()">×</button>
+      <h2>Frequently Asked Questions</h2>
+
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleAnswer(this)">
+          How do I know if a part will fit my vehicle? <span>+</span>
+        </div>
+        <div class="faq-answer">
+          Each part listing includes compatibility information. Check the VIN number, year, make, and model details. Our parts are sourced from specific donor vehicles with verified compatibility data.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleAnswer(this)">
+          What condition are the parts in? <span>+</span>
+        </div>
+        <div class="faq-answer">
+          All parts are carefully inspected and graded. We provide detailed condition descriptions and multiple photos. Most parts are in good working condition unless specifically noted as "for parts only."
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleAnswer(this)">
+          Do you offer warranties on used parts? <span>+</span>
+        </div>
+        <div class="faq-answer">
+          Yes! We offer a 30-day warranty on most mechanical parts and a 14-day warranty on electrical components. Cosmetic parts are sold as-is with detailed photos provided.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleAnswer(this)">
+          How fast is shipping? <span>+</span>
+        </div>
+        <div class="faq-answer">
+          Standard shipping takes 3-7 business days. Express shipping (1-3 days) is available for most items. Large items like engines or transmissions may require freight shipping.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleAnswer(this)">
+          Can I return a part if it doesn't fit? <span>+</span>
+        </div>
+        <div class="faq-answer">
+          Yes, we accept returns within 30 days if the part doesn't fit your vehicle. The part must be in the same condition as received. Return shipping costs apply unless the error was ours.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleAnswer(this)">
+          How do I track my order? <span>+</span>
+        </div>
+        <div class="faq-answer">
+          Once your order ships, you'll receive a tracking number via email. You can track your package directly with the carrier or check your order status in your account dashboard.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let inventoryData = [];
+
+    /* =====================
+       INVENTORY FUNCTIONS 
+       (for search/parts preview)
+       ===================== */
+
+    // Load inventory data from a tab-delimited CSV file.
+    async function loadInventoryData() {
+      try {
+        console.log("Loading inventory data from combined_listing.csv...");
+        const response = await fetch('combined_listing.csv');
+        if (!response.ok) throw new Error(`Inventory error: ${response.status}`);
+        const csvText = await response.text();
+        inventoryData = parseInventoryCSV(csvText);
+        console.log(`Loaded ${inventoryData.length} parts from inventory`);
+        
+        // Log sample data for debugging
+        if (inventoryData.length > 0) {
+          console.log("Sample inventory item:", inventoryData[0]);
+        }
+      } catch (error) {
+        console.error("Error loading inventory data:", error);
+        console.log("Attempting to show error message to user");
+        
+        // Try to get status from API
+        try {
+          const statusResponse = await fetch('/api/status');
+          const statusData = await statusResponse.json();
+          console.log("Data status:", statusData);
+        } catch (statusError) {
+          console.error("Could not get data status:", statusError);
+        }
+        
+        alert("Failed to load inventory data. Please try refreshing the page or contact support.");
+      }
+    }
+
+    // Simple tab-delimited CSV parser.
+    function parseInventoryCSV(csvText) {
+      const lines = csvText.trim().split("\n");
+      if (lines.length < 2) return [];
+      const header = lines[0].split("\t");
+      const data = [];
+      for (let i = 1; i < lines.length; i++) {
+        const row = lines[i].split("\t");
+        if (row.length !== header.length) continue;
+        const obj = {};
+        header.forEach((col, j) => { obj[col] = row[j]; });
+        data.push({
+          title: obj["*Title"] || obj["Scraped Title"] || obj["Original Title"] || "No Title",
+          price: parseFloat((obj["Scraped Price"] || obj["Original Price"] || "").replace(/[^\d.]/g, "")) || 0,
+          image: obj["PicURL"] || "",
+          description: obj["*Description"] || "",
+          "Part Number": obj["Part Number"] || "",
+          "Car Brand": obj["Car Brand"] || "",
+          "Manufacturer Part Number": obj["Manufacturer Part Number"] || "",
+          "Year": obj["Year"] || "",
+          "Car Model": obj["Car Model"] || "",
+          "Stock Number": obj["Stock Number"] || "",
+          "VIN Number": obj["VIN Number"] || "",
+          "*Category": obj["*Category"] || "",
+          "*ConditionID": obj["*ConditionID"] || "",
+          "*Format": obj["*Format"] || "",
+          "*Duration": obj["*Duration"] || "",
+          "*StartPrice": obj["*StartPrice"] || "",
+          "*Location": obj["*Location"] || "",
+          "ShippingType": obj["ShippingType"] || "",
+          "ShippingService-1:Option": obj["ShippingService-1:Option"] || "",
+          "ShippingService-1:Cost": obj["ShippingService-1:Cost"] || "",
+          "*DispatchTimeMax": obj["*DispatchTimeMax"] || "",
+          "*ReturnsAcceptedOption": obj["*ReturnsAcceptedOption"] || "",
+          "Compatibilities": obj["Compatibilities"] || ""
+        });
+      }
+      return data;
+    }
+
+    function searchParts() {
+      const query = document.getElementById("search-bar").value.toLowerCase();
+      const resultsDiv = document.getElementById("search-results");
+      if (query.length === 0) {
+        resultsDiv.style.display = "none";
+        return;
+      }
+      let resultsHTML = "";
+      let matches = [];
+      inventoryData.forEach(part => {
+        if (part.title.toLowerCase().includes(query)) {
+          matches.push(part);
+        }
+      });
+      if (matches.length === 0) {
+        resultsHTML = "<p>No exact matches found. Showing similar results:</p>";
+        matches = fuzzySearch(query, inventoryData);
+      }
+      resultsHTML += matches.map(part => {
+        const bestImage = chooseBestImage(part.image);
+        const cleanedTitle = cleanTitle(part.title);
+        return `
+          <div class="search-result-item" onclick="viewPartDetails('${encodeURIComponent(part["Part Number"])}')">
+              ${ bestImage ? `<img src="${bestImage}" alt="Part Image">` : "" }
+              <strong>${cleanedTitle}</strong> - $${part.price.toFixed(2)}
+          </div>
+        `;
+      }).join('');
+      resultsDiv.innerHTML = resultsHTML;
+      resultsDiv.style.display = "block";
+    }
+
+    function fuzzySearch(query, items) {
+      return items.filter(part =>
+        part.title.toLowerCase().includes(query.slice(0, -1)) ||
+        query.slice(1).includes(part.title.toLowerCase())
+      );
+    }
+
+    function submitSearch() {
+      const query = document.getElementById("search-bar").value.toLowerCase();
+      if (query.length === 0) return false;
+      localStorage.setItem('searchQuery', query);
+      window.location.href = 'search_results.html';
+      return false;
+    }
+
+    function viewPartDetails(partNumber) {
+      localStorage.setItem("selectedPart", partNumber);
+      window.location.href = 'part-details.html';
+    }
+
+    /* =====================
+       DONOR CAR GRID FUNCTIONS 
+       ===================== */
+
+    // Utility: Extract image URLs from a row using regex.
+    function extractImageURLsFromRow(rowText) {
+      // This regex matches URLs that start with http or https until a comma, quote, or end-of-line.
+      const urlRegex = /https?:\/\/[^\s,"]+/g;
+      const matches = rowText.match(urlRegex);
+      return matches ? matches : [];
+    }
+
+    // Custom parser for donor_car.csv that uses headers for all fields except "Images",
+    // where we extract URLs using a regex from the raw row text.
+    function parseDonorCSVWithCustomImages(csvText) {
+      const lines = csvText.trim().split("\n");
+      if (lines.length < 2) {
+        console.warn("Donor CSV appears empty or has no data rows");
+        return [];
+      }
+      const header = lines[0].split(",").map(h => h.trim());
+      console.log("Donor CSV headers:", header);
+      
+      const data = [];
+      // Loop through each row
+      for (let i = 1; i < lines.length; i++) {
+        const rowText = lines[i];
+        // Use a simple comma-split for other fields
+        const fields = rowText.split(",");
+        const obj = {};
+        header.forEach((col, j) => {
+          if (col === "Images") {
+            // Instead of relying on the j-th split value, extract all URLs from the raw row
+            obj[col] = extractImageURLsFromRow(rowText).join(", ");
+          } else {
+            obj[col] = fields[j] ? fields[j].trim() : "";
+          }
+        });
+        data.push(obj);
+      }
+      console.log(`Parsed ${data.length} donor cars from CSV`);
+      return data;
+    }
+
+    /* -------------------------
+       CSV Parsers
+       ------------------------- */
+    function loadDonorCarsPapa(callback) {
+      Papa.parse('donor_car.csv', {
+        download: true,
+        header: true,
+        complete: function(results) {
+          callback(results.data);
+        },
+        error: function(err) {
+          console.error("Error parsing donor_car.csv:", err);
+          alert("Failed to parse donor car data.");
+        }
+      });
+    }
+
+    // Global variable to store donor cars for use across functions
+    let globalDonorCars = [];
+
+    // Load donor car data using our custom parser.
+    async function loadDonorCars() {
+      const loadingElement = document.getElementById('loading-donor-cars');
+      const errorElement = document.getElementById('donor-cars-error');
+      const listElement = document.getElementById('donor-cars-list');
+
+      loadingElement.style.display = 'block';
+      errorElement.style.display = 'none';
+
+      try {
+        const response = await fetch('donor_car.csv');
+        if (!response.ok) throw new Error(`Error fetching donor cars: ${response.status}`);
+        const csvText = await response.text();
+        const donorCars = parseDonorCSVWithCustomImages(csvText);
+
+        // Store globally for hot cars slideshow
+        globalDonorCars = donorCars;
+
+        loadingElement.style.display = 'none';
+
+        if (donorCars.length === 0) {
+          listElement.innerHTML = '<p style="text-align: center; color: var(--ebony); opacity: 0.7;">No donor cars available at the moment.</p>';
+        } else {
+          displayDonorCars(donorCars);
+          // Initialize hot cars slideshow after donor cars are loaded
+          loadHotCars();
+        }
+      } catch (error) {
+        console.error("Error loading donor cars:", error);
+        loadingElement.style.display = 'none';
+        errorElement.style.display = 'block';
+        listElement.innerHTML = '';
+      }
+    }
+
+    function displayDonorCars(donorCars) {
+      const container = document.getElementById('donor-cars-list');
+      container.innerHTML = donorCars.map(car => {
+        // Expected CSV headers: "VIN Number", "Year", "Make", "Model", "Odometer miles", "Engine", "Location", "Title", "Damage", "VIN", "Lot", "Sale date", "Images", "Parts Available"
+        const images = car["Images"] ? car["Images"].split(",") : [];
+        const thumbnail = images.length > 0 ? images[0].trim() : "";
+        console.log(`For VIN ${car["VIN Number"]}, thumbnail:`, thumbnail);
+        return `
+          <div class="donor-car-card" onclick="selectDonorCar('${car["VIN Number"]}')">
+            ${ thumbnail ? `<img src="${thumbnail}" alt="Donor Car Image">` : '' }
+            <h3>${car["Year"]} ${car["Make"]} ${car["Model"]}</h3>
+            <p>Odometer: ${car["Odometer miles"]}</p>
+            <p>Location: ${car["Location"]}</p>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function selectDonorCar(vin) {
+      localStorage.setItem("selectedDonorCar", vin);
+      window.location.href = 'donor_car.html';
+    }
+
+    // Utility: This function splits an image string by pipe delimiter.
+    function chooseBestImage(imageString) {
+      if (!imageString) return "";
+      const urls = imageString.split(/\s*\|\s*/);
+      const unwantedPattern = "DOcAAOSw8NplLtwK";
+      const validUrls = urls.filter(url => !url.includes(unwantedPattern));
+      return validUrls.length > 0 ? validUrls[0] : "";
+    }
+
+    function cleanTitle(title) {
+      return title.replace(/Unknown Make Unknown Year/gi, "").trim();
+    }
+
+    // Hot Cars slideshow functionality
+    let hotCarsIndex = 0;
+    let hotCarsData = [];
+    let allDonorCars = [];
+    let viewCounts = JSON.parse(localStorage.getItem('carViewCounts') || '{}');
+    let lastHotCarsUpdate = localStorage.getItem('lastHotCarsUpdate') || 0;
+
+    function loadHotCars() {
+      // Store all donor cars for cycling
+      allDonorCars = [...globalDonorCars];
+
+      // Check if we need to refresh hot cars (every hour)
+      const now = Date.now();
+      const oneHour = 60 * 60 * 1000;
+
+      if (now - lastHotCarsUpdate > oneHour || !hotCarsData.length) {
+        refreshHotCars();
+        localStorage.setItem('lastHotCarsUpdate', now);
+      } else {
+        // Use stored hot cars data
+        const storedHotCars = localStorage.getItem('hotCarsData');
+        if (storedHotCars) {
+          hotCarsData = JSON.parse(storedHotCars);
+        } else {
+          refreshHotCars();
+        }
+      }
+
+      displayHotCars();
+    }
+
+    function refreshHotCars() {
+      // Select 5-6 random cars with good images for the slideshow
+      const carsWithImages = allDonorCars.filter(car => {
+        const images = car["Images"] ? car["Images"].split(",") : [];
+        return images.length > 0 && images[0].trim() !== "";
+      });
+
+      const shuffled = [...carsWithImages].sort(() => 0.5 - Math.random());
+      hotCarsData = shuffled.slice(0, 6);
+
+      // Store for next hour
+      localStorage.setItem('hotCarsData', JSON.stringify(hotCarsData));
+    }
+
+    function displayHotCars() {
+      const container = document.getElementById('hot-cars-container');
+      container.innerHTML = hotCarsData.map(car => {
+        const vin = car["VIN Number"] || car["VIN"];
+        const images = car["Images"] ? car["Images"].split(",") : [];
+        const thumbnail = images.length > 0 ? images[0].trim() : "";
+
+        // Generate fake view count for demo
+        if (!viewCounts[vin]) {
+          viewCounts[vin] = Math.floor(Math.random() * 500) + 50;
+        }
+
+        // Randomly double views for some cars
+        if (Math.random() < 0.3) {
+          viewCounts[vin] = Math.floor(viewCounts[vin] * (1.5 + Math.random()));
+        }
+
+        return `
+          <div class="hot-car-item" onclick="selectDonorCar('${vin}')">
+            ${thumbnail ? `<img src="${thumbnail}" alt="Hot Car" onerror="this.style.display='none'">` : ''}
+            <div class="view-count">
+              👁️ ${viewCounts[vin].toLocaleString()}
+            </div>
+            <h4>${car["Year"]} ${car["Make"]} ${car["Model"]}</h4>
+            <p>📍 ${car["Location"]}</p>
+            <p>⚡ ${car["Engine"]}</p>
+          </div>
+        `;
+      }).join('');
+
+      localStorage.setItem('carViewCounts', JSON.stringify(viewCounts));
+    }
+
+    function changeHotCarSlide(direction) {
+      const container = document.getElementById('hot-cars-container');
+      const maxIndex = hotCarsData.length - 1;
+
+      hotCarsIndex = hotCarsIndex + direction;
+      if (hotCarsIndex > maxIndex) hotCarsIndex = 0;
+      if (hotCarsIndex < 0) hotCarsIndex = maxIndex;
+      
+      // Move by 1/6 of the container width to show one item at a time
+      const slidePercentage = (hotCarsIndex * 100) / hotCarsData.length;
+      container.style.transform = `translateX(-${slidePercentage}%)`;
+    }
+
+    // FAQ functionality
+    function toggleFAQ() {
+      const modal = document.getElementById('faq-modal');
+      modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function closeFAQ() {
+      document.getElementById('faq-modal').style.display = 'none';
+    }
+
+    function toggleAnswer(questionElement) {
+      const answer = questionElement.nextElementSibling;
+      const icon = questionElement.querySelector('span');
+
+      if (answer.classList.contains('active')) {
+        answer.classList.remove('active');
+        icon.textContent = '+';
+      } else {
+        // Close all other answers
+        document.querySelectorAll('.faq-answer.active').forEach(ans => {
+          ans.classList.remove('active');
+          ans.previousElementSibling.querySelector('span').textContent = '+';
+        });
+
+        answer.classList.add('active');
+        icon.textContent = '−';
+      }
+    }
+
+    // Auto-rotate hot cars slideshow every 5 seconds
+    setInterval(() => {
+      if (hotCarsData.length > 1) {
+        hotCarsIndex++;
+        if (hotCarsIndex >= hotCarsData.length) {
+          hotCarsIndex = 0;
+        }
+
+        const container = document.getElementById('hot-cars-container');
+        const slidePercentage = (hotCarsIndex * 100) / hotCarsData.length;
+        container.style.transform = `translateX(-${slidePercentage}%)`;
+      }
+    }, 5000);
+
+    // Refresh hot cars every hour
+    setInterval(() => {
+      if (allDonorCars.length > 0) {
+        refreshHotCars();
+        displayHotCars();
+        hotCarsIndex = 0; // Reset slide position
+      }
+    }, 60 * 60 * 1000); // 1 hour
+
+    // Update cart count
+    function updateCartCount() {
+      const cart = JSON.parse(localStorage.getItem('autoPartsCart') || '[]');
+      const count = cart.reduce((total, item) => total + item.quantity, 0);
+      document.getElementById('cart-count').textContent = count;
+    }
+
+    // Function to show the account creation popup
+    function showAccountPopup() {
+        const popup = document.getElementById('account-popup');
+        popup.style.display = 'flex';
+    }
+
+    // Function to close the account creation popup
+    function closeAccountPopup() {
+        const popup = document.getElementById('account-popup');
+        popup.style.display = 'none';
+    }
+
+    // Function to handle account creation (Placeholder)
+    function createAccount() {
+        alert('Account creation functionality will be implemented later.');
+        closeAccountPopup();
+    }
+
+    // Function to show the checkout popup
+    function showCheckoutPopup() {
+        const popup = document.getElementById('checkout-popup');
+        popup.style.display = 'flex';
+    }
+
+    // Function to close the checkout popup
+    function closeCheckoutPopup() {
+        const popup = document.getElementById('checkout-popup');
+        popup.style.display = 'none';
+    }
+
+    // Function to handle checkout (Placeholder)
+    function proceedToCheckout() {
+        alert('Checkout functionality will be implemented later.');
+        closeCheckoutPopup();
+    }
+
+    // On page load, load both inventory and donor car data.
+    window.onload = async () => {
+      await loadInventoryData();
+      await loadDonorCars();
+      updateCartCount(); // Update cart count on page load
+      // Show account popup on first load
+      if (!sessionStorage.getItem('accountPopupShown')) {
+          showAccountPopup();
+          sessionStorage.setItem('accountPopupShown', 'true');
+      }
+    };
+  </script>
+
+  <!-- Account Creation Popup -->
+  <div id="account-popup" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); justify-content: center; align-items: center; z-index: 1000;">
+      <div style="background: white; padding: 20px; border-radius: 10px; text-align: center;">
+          <h2>Create an Account</h2>
+          <p>Enjoy exclusive benefits and personalized experience!</p>
+          <button onclick="createAccount()">Create Account</button>
+          <button onclick="closeAccountPopup()">Close</button>
+      </div>
+  </div>
+
+  <!-- Checkout Popup -->
+  <div id="checkout-popup" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); justify-content: center; align-items: center; z-index: 1000;">
+      <div style="background: white; padding: 20px; border-radius: 10px; text-align: center;">
+          <h2>Ready to Checkout?</h2>
+          <p>Confirm your order and proceed to payment.</p>
+          <button onclick="proceedToCheckout()">Proceed to Checkout</button>
+          <button onclick="closeCheckoutPopup()">Cancel</button>
+      </div>
+  </div>
+</body>
+</html>

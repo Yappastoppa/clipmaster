@@ -1,0 +1,215 @@
+import csv
+import os
+import json
+import requests
+from bs4 import BeautifulSoup
+import re
+import random
+import time
+from tqdm import tqdm
+
+# Rotate a few user agents
+user_agents = [
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; Pixel 3 XL) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Mobile Safari/537.36",
+]
+
+def process_part(part_number, original_title, original_price):
+    # Clean part number and build URL
+    part_number = part_number.strip().replace("ig-", "")
+    url = f"https://www.ebay.com/itm/{part_number}"
+    headers = {
+        "User-Agent": random.choice(user_agents),
+        "Accept-Language": "en-US,en;q=0.5",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+        "Connection": "keep-alive",
+    }
+    response = requests.get(url, headers=headers)
+    if response.status_code != 200:
+        print(f"Error fetching page for part {part_number}: Status Code {response.status_code}")
+        return None
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    
+    # --- Extract scraped details ---
+    def get_text(selector):
+        element = soup.select_one(selector)
+        return element.get_text(strip=True) if element else "Not found"
+    
+    scraped_title = get_text("h1.x-item-title__mainTitle span.ux-textspans--BOLD")
+    scraped_price = get_text("div.x-price-primary[data-testid='x-price-primary'] span.ux-textspans")
+    car_brand = get_text("dl.ux-labels-values--brand dd.ux-labels-values__values span.ux-textspans")
+    mpn = get_text("dl.ux-labels-values--manufacturerPartNumber dd.ux-labels-values__values span.ux-textspans")
+    year = get_text("dl.ux-labels-values--year dd.ux-labels-values__values span.ux-textspans")
+    car_model = get_text("dl.ux-labels-values--model dd.ux-labels-values__values span.ux-textspans")
+    stock_number = get_text("dl.ux-labels-values--stock dd.ux-labels-values__values span.ux-textspans")
+    
+    vin_dl = soup.find("dl", class_=lambda x: x and "ux-labels-values--vin" in x)
+    if vin_dl:
+        vin_element = vin_dl.find("dd", class_="ux-labels-values__values")
+        vin_number = vin_element.get_text(strip=True) if vin_element else "Not found"
+    else:
+        vin_number = "Not found"
+    
+    # --- Extract compatibilities (if available) ---
+    compat_table = soup.find("table", {"data-testid": "ux-table-section"})
+    if compat_table:
+        headers_list = [th.get_text(strip=True) for th in compat_table.find_all("th")]
+        compatibility_list = []
+        tbody = compat_table.find("tbody")
+        if tbody:
+            for row in tbody.find_all("tr", {"data-testid": "ux-table-section-body-row"}):
+                cells = row.find_all("td")
+                if cells:
+                    cell_texts = [cell.get_text(strip=True) for cell in cells]
+                    compatibility_list.append(dict(zip(headers_list, cell_texts)))
+        compatibilities = json.dumps(compatibility_list)
+    else:
+        compatibilities = "Not found"
+    
+    # --- Extract image URLs ---
+    image_container = soup.find("div", class_="ux-image-carousel-container")
+    if image_container:
+        image_urls = re.findall(r'https://[^\s\'"]+', str(image_container))
+        image_urls = list(set(image_urls))
+    else:
+        image_urls = []
+    pic_url = "|".join(image_urls)
+    
+    # --- Calculate profit margin and shipping cost based on original price ---
+    price_clean = original_price.replace(',', '').replace('$', '')
+    try:
+        price_num = float(price_clean)
+    except Exception:
+        price_num = 0.0
+
+    if price_num <= 50:
+        profit = price_num * 0.75
+        shipping_cost = 7.99
+    elif price_num <= 100:
+        profit = price_num * 0.60
+        shipping_cost = 14.99
+    elif price_num <= 500:
+        profit = price_num * 0.45
+        shipping_cost = 29.98
+    elif price_num <= 1000:
+        profit = price_num * 0.30
+        shipping_cost = 44.97
+    else:
+        profit = price_num * 0.20
+        shipping_cost = 59.96
+
+    final_price = price_num + profit
+
+    # --- Build the eBay listing details (using the original title directly) ---
+    listing_data = {
+        "Action(SiteID=US|Country=US|Currency=USD|Version=1193|CC=UTF-8)": "Add",
+        "CustomLabel": part_number,
+        "*Category": "20924",
+        "*Title": original_title,
+        "*ConditionID": "1000",
+        "PicURL": pic_url,
+        "*Description": (
+            "Enhance your vehicle with this premium OEM component. "
+            "Meticulously sourced and engineered for top performance, this genuine part "
+            "ensures a perfect fit and long-lasting durability. Tested for quality and authenticity, "
+            "it offers reliable compatibility across a range of models. Upgrade your ride with confidence "
+            "and enjoy the benefits of a component designed to meet the highest industry standards."
+        ),
+        "*Format": "FixedPrice",
+        "*Duration": "GTC",
+        "*StartPrice": f"{final_price:.2f}",
+        "*Location": "New York, NY",
+        "ShippingType": "Flat",
+        "ShippingService-1:Option": "USPSFirstClass",
+        "ShippingService-1:Cost": f"{shipping_cost:.2f}",
+        "*DispatchTimeMax": "3",
+        "*ReturnsAcceptedOption": "ReturnsNotAccepted",
+        "Compatibilities": compatibilities,
+    }
+    
+    # Also prepare the scraped details dictionary
+    scraped_data = {
+        "Scraped Title": scraped_title,
+        "Scraped Price": scraped_price,
+        "Car Brand": car_brand,
+        "Manufacturer Part Number": mpn,
+        "Year": year,
+        "Car Model": car_model,
+        "Stock Number": stock_number,
+        "VIN Number": vin_number,
+        "Compatibilities": compatibilities,
+    }
+    return scraped_data, listing_data
+
+def main():
+    input_csv = "carparts.csv"         # Input CSV: columns - Part Number, Title, Price
+    output_csv = "combined_listing.csv"  # Output CSV with merged data
+
+    fieldnames = [
+        # From original CSV and scraped details:
+        "Part Number", "Original Title", "Original Price",
+        "Scraped Title", "Scraped Price", "Car Brand", "Manufacturer Part Number",
+        "Year", "Car Model", "Stock Number", "VIN Number",
+        # eBay listing details:
+        "Action(SiteID=US|Country=US|Currency=USD|Version=1193|CC=UTF-8)",
+        "CustomLabel", "*Category", "*Title", "*ConditionID", "PicURL",
+        "*Description", "*Format", "*Duration", "*StartPrice", "*Location",
+        "ShippingType", "ShippingService-1:Option", "ShippingService-1:Cost",
+        "*DispatchTimeMax", "*ReturnsAcceptedOption", "Compatibilities"
+    ]
+    
+    with open(output_csv, "w", newline="", encoding="utf-8") as outfile:
+        writer = csv.DictWriter(outfile, fieldnames=fieldnames, delimiter="\t")
+        writer.writeheader()
+        # Load all rows into a list so we can use tqdm for progress tracking
+        with open(input_csv, "r", encoding="utf-8") as infile:
+            reader = csv.DictReader(infile)
+            rows = list(reader)
+        
+        for row in tqdm(rows, desc="Processing parts", unit="part"):
+            part_number = row["Part Number"]
+            orig_title = row.get("Title", "")
+            orig_price = row.get("Price", "")
+            scraped_listing = process_part(part_number, orig_title, orig_price)
+            if scraped_listing is None:
+                continue
+            scraped_data, listing_data = scraped_listing
+            combined_data = {
+                "Part Number": part_number,
+                "Original Title": orig_title,
+                "Original Price": orig_price,
+                "Scraped Title": scraped_data.get("Scraped Title", ""),
+                "Scraped Price": scraped_data.get("Scraped Price", ""),
+                "Car Brand": scraped_data.get("Car Brand", ""),
+                "Manufacturer Part Number": scraped_data.get("Manufacturer Part Number", ""),
+                "Year": scraped_data.get("Year", ""),
+                "Car Model": scraped_data.get("Car Model", ""),
+                "Stock Number": scraped_data.get("Stock Number", ""),
+                "VIN Number": scraped_data.get("VIN Number", ""),
+                "Action(SiteID=US|Country=US|Currency=USD|Version=1193|CC=UTF-8)": listing_data.get("Action(SiteID=US|Country=US|Currency=USD|Version=1193|CC=UTF-8)"),
+                "CustomLabel": listing_data.get("CustomLabel"),
+                "*Category": listing_data.get("*Category"),
+                "*Title": listing_data.get("*Title"),
+                "*ConditionID": listing_data.get("*ConditionID"),
+                "PicURL": listing_data.get("PicURL"),
+                "*Description": listing_data.get("*Description"),
+                "*Format": listing_data.get("*Format"),
+                "*Duration": listing_data.get("*Duration"),
+                "*StartPrice": listing_data.get("*StartPrice"),
+                "*Location": listing_data.get("*Location"),
+                "ShippingType": listing_data.get("ShippingType"),
+                "ShippingService-1:Option": listing_data.get("ShippingService-1:Option"),
+                "ShippingService-1:Cost": listing_data.get("ShippingService-1:Cost"),
+                "*DispatchTimeMax": listing_data.get("*DispatchTimeMax"),
+                "*ReturnsAcceptedOption": listing_data.get("*ReturnsAcceptedOption"),
+                "Compatibilities": listing_data.get("Compatibilities"),
+            }
+            writer.writerow(combined_data)
+            outfile.flush()  # Update CSV immediately
+            time.sleep(random.uniform(1, 3))
+    print(f"Combined CSV file '{output_csv}' created with real-time updates.")
+
+if __name__ == "__main__":
+    main()

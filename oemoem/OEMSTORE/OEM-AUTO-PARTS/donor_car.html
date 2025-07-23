@@ -1,0 +1,703 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Donor Car Details</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sofia+Sans+Extra+Condensed:ital,wght@0,400;0,600;0,800;1,800&display=swap" rel="stylesheet">
+  <style>
+      :root {
+          --racing-red: #e63946;
+          --deep-black: #1a1a1a;
+          --chrome-silver: #c5c6c7;
+          --steel-blue: #457b9d;
+          --white: #ffffff;
+          --shadow: rgba(26, 26, 26, 0.2);
+          --accent-orange: #ff6b35;
+      }
+
+      * {
+          box-sizing: border-box;
+          margin: 0;
+          padding: 0;
+      }
+
+      body { 
+          font-family: "Sofia Sans Extra Condensed", sans-serif; 
+          background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+          color: var(--deep-black);
+          min-height: 100vh;
+      }
+
+      .nav { 
+          background: var(--deep-black);
+          padding: 15px 0;
+          box-shadow: 0 2px 10px var(--shadow);
+          position: sticky;
+          top: 0;
+          z-index: 100;
+      }
+
+      .nav a { 
+          color: var(--white);
+          margin: 0 20px;
+          text-decoration: none;
+          padding: 12px 20px;
+          border-radius: 25px;
+          font-weight: 600;
+          transition: all 0.3s ease;
+          display: inline-block;
+      }
+
+      .nav a:hover { 
+          background-color: var(--racing-red);
+          color: var(--white);
+          transform: translateY(-2px);
+      }
+
+      h1 {
+          font-size: 3rem;
+          font-weight: 800;
+          color: var(--deep-black);
+          margin: 40px 0;
+          text-align: center;
+          text-shadow: 2px 2px 4px var(--shadow);
+      }
+
+      .main-container {
+          display: flex;
+          gap: 30px;
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 20px;
+      }
+
+      .sidebar {
+          width: 35%;
+          background: var(--white);
+          padding: 30px;
+          border-radius: 20px;
+          box-shadow: 0 8px 25px var(--shadow);
+          height: fit-content;
+      }
+
+      .sidebar h2 { 
+          margin-bottom: 20px;
+          font-size: 2rem;
+          font-weight: 600;
+          color: var(--deep-black);
+      }
+
+      .sidebar ul { 
+          list-style-type: none; 
+          padding: 0; 
+      }
+
+      .sidebar ul li {
+          padding: 15px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          border: 2px solid var(--steel-blue);
+          border-radius: 10px;
+          margin-bottom: 10px;
+          transition: all 0.3s ease;
+          background: var(--white);
+      }
+
+      .sidebar ul li:hover {
+          background: var(--racing-red);
+          color: var(--white);
+          border-color: var(--accent-orange);
+          transform: translateX(5px);
+      }
+
+      .sidebar ul li img {
+          border: 2px solid var(--steel-blue);
+          border-radius: 8px;
+      }
+
+      .donor-container { 
+          width: 65%;
+          background: var(--white);
+          padding: 30px;
+          border-radius: 20px;
+          box-shadow: 0 8px 25px var(--shadow);
+      }
+
+      .slideshow-container {
+          width: 100%;
+          max-width: 500px;
+          height: 400px;
+          margin: 20px auto;
+          overflow: hidden;
+          border: 2px solid var(--steel-blue);
+          border-radius: 15px;
+          position: relative;
+          background: var(--white);
+          box-shadow: 0 4px 15px var(--shadow);
+      }
+
+      .slideshow-container img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+      }
+
+      .nav-btn {
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          background: var(--racing-red);
+          color: var(--white);
+          border: none;
+          padding: 15px;
+          cursor: pointer;
+          border-radius: 50%;
+          font-size: 1.2rem;
+          transition: all 0.3s ease;
+          z-index: 10;
+      }
+
+      .nav-btn:hover {
+          background: var(--accent-orange);
+          color: var(--white);
+          transform: translateY(-50%) scale(1.1);
+      }
+
+      .prev-btn { left: 10px; }
+      .next-btn { right: 10px; }
+
+      .thumbnail-gallery {
+          display: flex;
+          justify-content: center;
+          margin-top: 20px;
+          gap: 10px;
+          flex-wrap: wrap;
+      }
+
+      .thumbnail {
+          width: 80px;
+          height: 60px;
+          object-fit: cover;
+          cursor: pointer;
+          border: 2px solid var(--steel-blue);
+          border-radius: 8px;
+          transition: all 0.3s ease;
+      }
+
+      .thumbnail:hover {
+          border-color: var(--racing-red);
+          transform: scale(1.1);
+      }
+
+      .overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0,0,0,0.8);
+          display: none;
+          align-items: center;
+          justify-content: center;
+          z-index: 1000;
+      }
+
+      .overlay-content {
+          max-width: 90%;
+          max-height: 90%;
+          overflow: auto;
+          background: var(--white);
+          padding: 30px;
+          border-radius: 20px;
+          display: flex;
+          flex-wrap: wrap;
+          gap: 15px;
+          justify-content: center;
+      }
+
+      .overlay-content img {
+          max-width: 200px;
+          max-height: 150px;
+          object-fit: cover;
+          border-radius: 10px;
+          border: 2px solid var(--steel-blue);
+      }
+
+      .close-overlay {
+          position: absolute;
+          top: 30px;
+          right: 30px;
+          background: var(--racing-red);
+          color: var(--white);
+          border: none;
+          font-size: 24px;
+          cursor: pointer;
+          z-index: 1100;
+          padding: 10px 15px;
+          border-radius: 50%;
+          transition: all 0.3s ease;
+      }
+
+      .close-overlay:hover {
+          background: var(--accent-orange);
+          color: var(--white);
+      }
+
+      .car-details-section {
+          margin-top: 30px;
+          background: var(--white);
+          border: 2px solid var(--steel-blue);
+          border-radius: 15px;
+          padding: 20px;
+      }
+
+      .car-details-grid {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 15px;
+          margin-top: 15px;
+      }
+
+      .detail-item {
+          display: flex;
+          align-items: center;
+          padding: 12px;
+          background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+          border-radius: 10px;
+          border-left: 4px solid var(--racing-red);
+      }
+
+      .detail-label {
+          font-weight: 600;
+          color: var(--deep-black);
+          margin-right: 8px;
+          min-width: 80px;
+      }
+
+      .detail-value {
+          color: var(--deep-black);
+          opacity: 0.8;
+      }
+
+      @media (max-width: 768px) {
+          .main-container {
+              flex-direction: column;
+              padding: 15px;
+              gap: 20px;
+          }
+
+          .sidebar, .donor-container {
+              width: 100%;
+              padding: 20px;
+          }
+
+          h1 {
+              font-size: 2.2rem;
+              margin: 20px 0;
+          }
+
+          .slideshow-container {
+              width: 100%;
+              height: 300px;
+          }
+
+          .thumbnail-gallery {
+              justify-content: center;
+          }
+
+          .thumbnail {
+              width: 60px;
+              height: 45px;
+          }
+
+          .car-details-grid {
+              grid-template-columns: 1fr;
+          }
+
+          .nav a {
+              margin: 0 5px;
+              padding: 8px 12px;
+              font-size: 0.85rem;
+          }
+      }
+
+      .loading-spinner {
+          display: inline-block;
+          width: 40px;
+          height: 40px;
+          border: 4px solid var(--chrome-silver);
+          border-radius: 50%;
+          border-top-color: var(--racing-red);
+          animation: spin 1s ease-in-out infinite;
+          margin-bottom: 15px;
+      }
+
+      @keyframes spin {
+          to { transform: rotate(360deg); }
+      }
+
+      .error-message {
+          background: var(--racing-red);
+          color: white;
+          padding: 15px;
+          border-radius: 10px;
+          margin: 20px 0;
+          text-align: center;
+      }
+
+      @media (max-width: 480px) {
+          h1 {
+              font-size: 1.8rem;
+              margin-bottom: 20px;
+          }
+
+          .main-container {
+              padding: 10px;
+          }
+
+          .sidebar, .donor-container {
+              padding: 15px;
+          }
+
+          .nav a {
+              margin: 0 2px;
+              padding: 6px 8px;
+              font-size: 0.8rem;
+          }
+
+          .slideshow-container {
+              height: 250px;
+          }
+
+          .detail-item {
+              padding: 8px;
+              flex-direction: column;
+              align-items: flex-start;
+          }
+
+          .detail-label {
+              margin-bottom: 4px;
+              min-width: auto;
+          }
+      }
+  </style>
+</head>
+<body>
+  <div class="nav" style="text-align: center;">
+      <a href="index.html">🏠 Home</a>
+      <a href="parts_inventory.html">🔧 Parts</a>
+      <a href="reviews.html">⭐ Reviews</a>
+      <a href="contact.html">📞 Contact</a>
+      <a href="cart.html">🛒 Cart (<span id="cart-count">0</span>)</a>
+  </div>
+
+  <h1 id="donor-title"></h1>
+
+  <div class="main-container">
+    <!-- Sidebar with available parts -->
+    <div class="sidebar">
+      <h2>Available Parts</h2>
+      <ul id="part-list"></ul>
+    </div>
+
+    <!-- Donor car details container -->
+    <div class="donor-container">
+        <div class="slideshow-container" id="car-slideshow">
+          <!-- Slideshow image and nav buttons will be injected here -->
+        </div>
+        <div id="thumbnail-gallery" class="thumbnail-gallery"></div>
+        
+        <div class="car-details-section">
+          <h3 style="color: var(--deep-black); margin-bottom: 15px; font-size: 1.5rem;">Vehicle Details</h3>
+          <div id="car-details" class="car-details-grid"></div>
+        </div>
+    </div>
+  </div>
+
+  <!-- Overlay for full gallery -->
+  <div id="gallery-overlay" class="overlay" onclick="hideOverlay()">
+    <div class="overlay-content" id="overlay-content" onclick="event.stopPropagation()"></div>
+    <button class="close-overlay" onclick="hideOverlay()">×</button>
+  </div>
+
+  <script>
+    let slides = [];
+    let currentSlideIndex = 0;
+
+    /* -------------------------
+       Utility Functions
+       ------------------------- */
+    function extractImageURLsFromRow(rowText) {
+      const urlRegex = /https?:\/\/[^\s,"]+/g;
+      const matches = rowText.match(urlRegex);
+      return matches ? matches : [];
+    }
+
+    // Our chooseBestImage function filters out URLs that contain an unwanted pattern.
+    function chooseBestImage(imageString) {
+      if (!imageString) return "";
+      const urls = imageString.split(/\s*\|\s*/);
+      const unwantedPattern = "DOcAAOSw8NplLtwK";
+      const validUrls = urls.filter(url => !url.includes(unwantedPattern));
+      return validUrls.length > 0 ? validUrls[0] : "";
+    }
+
+    /* -------------------------
+       CSV Parsers
+       ------------------------- */
+    function loadDonorCarsPapa(callback) {
+      Papa.parse('donor_car.csv', {
+        download: true,
+        header: true,
+        complete: function(results) {
+          callback(results.data);
+        },
+        error: function(err) {
+          console.error("Error parsing donor_car.csv:", err);
+          alert("Failed to parse donor car data.");
+        }
+      });
+    }
+
+    function parsePartsCSV(csvText) {
+      const lines = csvText.trim().split("\n");
+      if (lines.length < 2) return [];
+      const header = lines[0].split("\t").map(h => h.trim());
+      const data = [];
+      for (let i = 1; i < lines.length; i++) {
+        const row = lines[i].split("\t");
+        if (row.length !== header.length) continue;
+        const obj = {};
+        header.forEach((col, j) => {
+          obj[col] = row[j] ? row[j].trim() : "";
+        });
+        data.push(obj);
+      }
+      return data;
+    }
+
+    /* -------------------------
+       Donor Car Page Functions
+       ------------------------- */
+    async function loadDonorCar() {
+      const vin = localStorage.getItem("selectedDonorCar");
+      if (!vin) {
+        alert("No donor car selected!");
+        window.location.href = 'index.html';
+        return;
+      }
+      loadDonorCarsPapa(function(donorCars) {
+        console.log("Parsed Donor Cars:", donorCars);
+        const car = donorCars.find(c => c["VIN Number"] === vin);
+        if (!car) {
+          alert("Donor car not found!");
+          window.location.href = 'index.html';
+          return;
+        }
+        document.getElementById("donor-title").innerText = `${car["Year"]} ${car["Make"]} ${car["Model"]}`;
+        displayCarDetails(car);
+        loadAvailableParts(car["Parts Available"]);
+      });
+    }
+
+    function displayCarDetails(car) {
+      // Create detailed car information display
+      const detailsContainer = document.getElementById("car-details");
+      const details = [
+        { label: "Year:", value: car["Year"] || "N/A" },
+        { label: "Make:", value: car["Make"] || "N/A" },
+        { label: "Model:", value: car["Model"] || "N/A" },
+        { label: "Mileage:", value: (car["Odometer miles"] || "N/A") + (car["Odometer miles"] ? " miles" : "") },
+        { label: "Engine:", value: car["Engine"] || "N/A" },
+        { label: "Location:", value: car["Location"] || "N/A" },
+        { label: "Title:", value: car["Title"] || "N/A" },
+        { label: "Damage:", value: car["Damage"] || "N/A" }
+      ];
+
+      detailsContainer.innerHTML = details.map(detail => `
+        <div class="detail-item">
+          <span class="detail-label">${detail.label}</span>
+          <span class="detail-value">${detail.value}</span>
+        </div>
+      `).join('');
+
+      // Process Images: split by commas and filter out unwanted ones
+      if (typeof car["Images"] === "string") {
+        slides = car["Images"].split(",")
+                   .map(img => img.trim())
+                   .filter(img => img !== "" && !img.includes("noimage.png"));
+      } else {
+        slides = [];
+      }
+      currentSlideIndex = 0;
+      showSlide();
+      buildThumbnailGallery();
+    }
+
+    function showSlide() {
+      const container = document.getElementById("car-slideshow");
+      if (slides.length === 0) {
+        container.innerHTML = "<p style='text-align: center; color: var(--deep-black); padding: 50px;'>No images available</p>";
+        return;
+      }
+      container.innerHTML = `
+        <img src="${slides[currentSlideIndex]}" alt="Car Image">
+        <button class="nav-btn prev-btn" onclick="prevSlide()">&#10094;</button>
+        <button class="nav-btn next-btn" onclick="nextSlide()">&#10095;</button>
+      `;
+    }
+
+    function nextSlide() {
+      if (slides.length === 0) return;
+      currentSlideIndex = (currentSlideIndex + 1) % slides.length;
+      showSlide();
+    }
+
+    function prevSlide() {
+      if (slides.length === 0) return;
+      currentSlideIndex = (currentSlideIndex - 1 + slides.length) % slides.length;
+      showSlide();
+    }
+
+    function buildThumbnailGallery() {
+      const gallery = document.getElementById("thumbnail-gallery");
+      gallery.innerHTML = "";
+      if (slides.length === 0) return;
+      const maxThumbs = 5;
+      for (let i = 0; i < Math.min(maxThumbs, slides.length); i++) {
+        const thumb = document.createElement("img");
+        thumb.src = slides[i];
+        thumb.className = "thumbnail";
+        thumb.onclick = () => {
+          currentSlideIndex = i;
+          showSlide();
+        };
+        gallery.appendChild(thumb);
+      }
+      if (slides.length > maxThumbs) {
+        const moreDiv = document.createElement("div");
+        moreDiv.className = "thumbnail";
+        moreDiv.style.display = "flex";
+        moreDiv.style.alignItems = "center";
+        moreDiv.style.justifyContent = "center";
+        moreDiv.style.background = "var(--steel-blue)";
+        moreDiv.style.color = "var(--white)";
+        moreDiv.style.cursor = "pointer";
+        moreDiv.style.fontWeight = "600";
+        moreDiv.innerText = "More...";
+        moreDiv.onclick = showOverlay;
+        gallery.appendChild(moreDiv);
+      }
+    }
+
+    function showOverlay() {
+      const overlay = document.getElementById("gallery-overlay");
+      const overlayContent = document.getElementById("overlay-content");
+      overlayContent.innerHTML = slides.map(img => `<img src="${img}" alt="Image">`).join('');
+      overlay.style.display = "flex";
+    }
+
+    function hideOverlay() {
+      document.getElementById("gallery-overlay").style.display = "none";
+    }
+
+    /* -------------------------
+       Available Parts Sidebar Functions
+       ------------------------- */
+    async function loadAvailableParts(partsAvailableString) {
+      const donorPartNumbers = partsAvailableString.split(",")
+                                .map(p => p.replace(/"/g, "").trim())
+                                .filter(p => p !== "");
+      console.log("Donor Part Numbers:", donorPartNumbers);
+      try {
+        const response = await fetch('combined_listing.csv');
+        if (!response.ok) throw new Error("Parts CSV not found");
+        const csvText = await response.text();
+        const parts = parsePartsCSV(csvText);
+        console.log("All Parts from combined_listing.csv (first 5):", parts.slice(0, 5));
+        const matchingParts = parts.filter(part => {
+          if (!part["Part Number"]) return false;
+          return donorPartNumbers.includes(part["Part Number"]);
+        });
+        console.log("Matching Parts:", matchingParts);
+        window.matchingParts = matchingParts;
+        displayAvailableParts(matchingParts);
+      } catch(e) {
+        console.error("Error loading available parts:", e);
+      }
+    }
+
+    function displayAvailableParts(parts) {
+      const partListContainer = document.getElementById("part-list");
+      partListContainer.innerHTML = parts.map(part => {
+        const image = part["PicURL"] ? chooseBestImage(part["PicURL"]) : "";
+        const partTitle = part["Scraped Title"] || part["Original Title"] || part["Part Number"];
+        return `
+        <li onclick="viewPart('${part["Part Number"]}')">
+            ${ image ? `<img src="${image}" alt="Part Image" style="width:80px; height:60px; border:none; outline:none; object-fit: cover;" title="${partTitle}">` : "" }
+            <span style="margin-left: 10px; font-weight: 500;" title="${partTitle}">${partTitle}</span>
+        </li>
+        `;
+      }).join('');
+    }
+
+    function viewPart(partNumber) {
+      const part = window.matchingParts?.find(p => p["Part Number"] === partNumber);
+      if (!part) {
+        alert("Part details not found!");
+        return;
+      }
+
+      const partDetails = {
+        title: encodeURIComponent(part["Scraped Title"] || part["Original Title"] || part["Part Number"]),
+        price: encodeURIComponent(part["Scraped Price"] || part["Original Price"] || "0"),
+        images: encodeURIComponent(part["PicURL"] || ""),
+        description: encodeURIComponent("Enhance your vehicle with this premium OEM component. Meticulously sourced and engineered for top performance, this genuine part ensures a perfect fit and long-lasting durability."),
+        "Part Number": encodeURIComponent(part["Part Number"] || ""),
+        "Car Brand": encodeURIComponent(part["Car Brand"] || ""),
+        "Manufacturer Part Number": encodeURIComponent(part["Manufacturer Part Number"] || ""),
+        "Year": encodeURIComponent(part["Year"] || ""),
+        "Car Model": encodeURIComponent(part["Car Model"] || ""),
+        "Stock Number": encodeURIComponent(part["Stock Number"] || ""),
+        "VIN Number": encodeURIComponent(part[" NumbeVINr"] || part["VIN Number"] || ""),
+        "*Category": encodeURIComponent(part["*Category"] || ""),
+        "*ConditionID": encodeURIComponent(part["*ConditionID"] || ""),
+        "*Format": encodeURIComponent(part["*Format"] || ""),
+        "*Duration": encodeURIComponent(part["*Duration"] || ""),
+        "*StartPrice": encodeURIComponent(part["*StartPrice"] || ""),
+        "*Location": encodeURIComponent(part["*Location"] || ""),
+        "ShippingType": encodeURIComponent(part["ShippingType"] || ""),
+        "ShippingService-1:Option": encodeURIComponent(part["ShippingService-1:Option"] || ""),
+        "ShippingService-1:Cost": encodeURIComponent(part["ShippingService-1:Cost"] || ""),
+        "*DispatchTimeMax": encodeURIComponent(part["*DispatchTimeMax"] || ""),
+        "*ReturnsAcceptedOption": encodeURIComponent(part["*ReturnsAcceptedOption"] || ""),
+        "Compatibilities": encodeURIComponent(part["Compatibilities"] || "")
+      };
+
+      localStorage.setItem('partDetails', JSON.stringify(partDetails));
+      window.location.href = 'part-details.html';
+    }
+
+    function updateCartCount() {
+      const cart = JSON.parse(localStorage.getItem('autoPartsCart') || '[]');
+      const count = cart.reduce((total, item) => total + item.quantity, 0);
+      const cartCountElement = document.querySelector('#cart-count');
+      if (cartCountElement) {
+        cartCountElement.textContent = count;
+      }
+    }
+
+    window.onload = () => {
+      loadDonorCar();
+      updateCartCount();
+    };
+  </script>
+</body>
+</html>

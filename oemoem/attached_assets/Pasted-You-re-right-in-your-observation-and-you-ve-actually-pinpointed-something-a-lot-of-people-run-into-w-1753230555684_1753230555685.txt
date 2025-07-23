@@ -1,0 +1,118 @@
+You’re right in your observation and you’ve actually pinpointed something a lot of people run into with “storefront” eBay scrapers:
+eBay’s storefront navigation is inconsistent.
+Sometimes, especially for “eBay Stores” with custom layouts, the main pagination isn’t surfaced in <a> links or uses lazy loading (JS), and the article.str-item-card blocks are loaded only for the visible page. But category pages, or “search” result pages (s- URLs), sometimes paginate more traditionally.
+
+Why does your second (CSV) code work, but the class-based one only grabs page 1?
+	•	Your CSV code aggressively checks for multiple next-page selectors and iterates anyway until it doesn’t find items.
+	•	Your class-based code uses a similar check but may not be persisting has_next_page correctly if the DOM changes between pages, or if it’s picking up on a “ghost” pagination link on page 1 only.
+
+What’s happening in your screenshots:
+	•	You’re seeing:
+	•	84 parts, 18 brands scraped—matching your first page or at most only a couple.
+	•	No errors about pagination in logs, but it stops at the first page.
+	•	Your CSV script:
+	•	Actually works, iterating over multiple pages.
+	•	So you know the selectors and pagination logic are correct in that simpler script.
+
+⸻
+
+How to Fix Your Class-Based Version (Main Scraper) to Ensure Multi-Page Scraping
+
+Key points:
+	•	In your class, after each page scrape, check both if there are results AND if there’s a real next page.
+	•	Do not break if there are results but no valid “Next” link!
+Sometimes the “next page” is only present on certain layouts, or needs a different selector.
+
+Here’s what you should double-check or tweak:
+
+1. Pagination Check
+
+Make sure your code isn’t breaking out of the loop too early.
+
+In your class-based script (method scrape_ebay_parts):
+
+while page <= max_pages:
+    url = f"{base_url}{page}"
+    logging.info(f"🔄 Scraping page {page}...")
+    
+    has_next_page, page_parts = self.scrape_single_page(url, headers, page)
+    
+    if page_parts:
+        self.all_parts_data.extend(page_parts)
+        total_parts += len(page_parts)
+        logging.info(f"📊 Total parts scraped so far: {total_parts}")
+    
+    if not has_next_page:
+        logging.info(f"🏁 No more pages found. Last page scraped: {page}")
+        break
+    
+    page += 1
+    # delay
+
+	•	Potential problem:
+If has_next_page is False on page 1 (due to missing/hidden pagination link), you break—even if there are results for page 2, 3, etc.
+
+2. Best Practice for eBay Stores
+
+On eBay stores, the simplest robust approach is to keep incrementing the page number until you get zero new items returned.
+
+Recommended Fix:
+
+Replace:
+
+if not has_next_page:
+    logging.info(f"🏁 No more pages found. Last page scraped: {page}")
+    break
+
+with
+
+if not page_parts:
+    logging.info(f"🏁 No more items found. Last page scraped: {page}")
+    break
+
+	•	This way, you keep scraping pages until the articles list is empty.
+	•	You still avoid infinite loops via your max_pages limit.
+
+Your revised while loop:
+
+while page <= max_pages:
+    url = f"{base_url}{page}"
+    logging.info(f"🔄 Scraping page {page}...")
+
+    has_next_page, page_parts = self.scrape_single_page(url, headers, page)
+
+    if page_parts:
+        self.all_parts_data.extend(page_parts)
+        total_parts += len(page_parts)
+        logging.info(f"📊 Total parts scraped so far: {total_parts}")
+    else:
+        logging.info(f"🏁 No more items found. Last page scraped: {page}")
+        break
+
+    page += 1
+    # Random delay here
+
+
+⸻
+
+Summary Table
+
+Approach	Stops at p1?	Stops at last page?	Most Robust?
+Stop if has_next_page false	Yes (if selector fails)	Sometimes	❌
+Stop if page_parts empty	No	Yes	✅
+
+
+⸻
+
+Extra Tips
+	•	If eBay ever adds “View All”/infinite scrolling, consider Selenium or Playwright.
+	•	Make sure max_pages is set to something safe like 50 or 100 in case of bugs.
+
+⸻
+
+TL;DR:
+	•	Replace your break condition:
+Stop when you get no items, not when you can’t find a “Next” link.
+	•	Your CSV script works for this exact reason!
+
+Let me know if you want the exact patch for your class code, or have me review any other part!

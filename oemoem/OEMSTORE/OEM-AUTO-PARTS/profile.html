@@ -1,0 +1,813 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile - OEM Auto Parts</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sofia+Sans+Extra+Condensed:ital,wght@0,400;0,600;0,800;1,800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --racing-red: #e63946;
+            --deep-black: #1a1a1a;
+            --chrome-silver: #c5c6c7;
+            --steel-blue: #457b9d;
+            --white: #ffffff;
+            --shadow: rgba(26, 26, 26, 0.2);
+            --accent-orange: #ff6b35;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body { 
+            font-family: "Sofia Sans Extra Condensed", sans-serif; 
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            color: var(--deep-black);
+            min-height: 100vh;
+        }
+
+        .nav { 
+            background: linear-gradient(135deg, var(--deep-black) 0%, #2d3436 100%);
+            padding: 0;
+            box-shadow: 0 4px 20px var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 3px solid var(--racing-red);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+        }
+
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .brand-text {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+        }
+
+        .brand-name {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--white);
+            letter-spacing: 1px;
+        }
+
+        .brand-tagline {
+            font-size: 0.7rem;
+            color: var(--chrome-silver);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-top: 2px;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .nav-link {
+            color: var(--white);
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+        }
+
+        .nav-link:hover {
+            background: linear-gradient(135deg, var(--racing-red) 0%, var(--accent-orange) 100%);
+            color: var(--white);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(230, 57, 70, 0.4);
+        }
+
+        .cart-link {
+            background: linear-gradient(135deg, var(--steel-blue) 0%, var(--racing-red) 100%);
+            font-weight: 700;
+        }
+
+        .cart-link:hover {
+            background: linear-gradient(135deg, var(--racing-red) 0%, var(--accent-orange) 100%);
+            transform: translateY(-3px) scale(1.05);
+        }
+
+        .container { 
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--deep-black);
+            margin-bottom: 40px;
+            text-shadow: 2px 2px 4px var(--shadow);
+            text-align: center;
+        }
+
+        .auth-section {
+            background: var(--white);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 8px 25px var(--shadow);
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .auth-tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e0f2fe;
+        }
+
+        .auth-tab {
+            background: none;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--deep-black);
+            opacity: 0.6;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+
+        .auth-tab.active {
+            opacity: 1;
+            border-bottom-color: var(--racing-red);
+            color: var(--racing-red);
+        }
+
+        .auth-form {
+            display: none;
+            text-align: left;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--deep-black);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--steel-blue);
+            border-radius: 10px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--racing-red);
+        }
+
+        .btn {
+            background: var(--racing-red);
+            color: var(--white);
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn:hover {
+            background: var(--accent-orange);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px var(--shadow);
+        }
+
+        .btn-secondary {
+            background: var(--steel-blue);
+            margin-top: 10px;
+        }
+
+        .btn-secondary:hover {
+            background: var(--deep-black);
+        }
+
+        .profile-section {
+            display: none;
+        }
+
+        .profile-header {
+            background: var(--white);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 8px 25px var(--shadow);
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--racing-red) 0%, var(--accent-orange) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: var(--white);
+            font-weight: 800;
+        }
+
+        .profile-info h2 {
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--deep-black);
+            margin-bottom: 10px;
+        }
+
+        .profile-info p {
+            color: var(--deep-black);
+            opacity: 0.8;
+            font-size: 1.1rem;
+        }
+
+        .member-badge {
+            background: linear-gradient(135deg, #ffd700 0%, #ffb347 100%);
+            color: var(--deep-black);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-top: 10px;
+            display: inline-block;
+        }
+
+        .profile-tabs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .profile-tab {
+            background: var(--white);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 8px 25px var(--shadow);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .profile-tab:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px var(--shadow);
+        }
+
+        .profile-tab h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--deep-black);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .profile-tab-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--racing-red);
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .order-item {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--racing-red);
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .order-number {
+            font-weight: 600;
+            color: var(--deep-black);
+        }
+
+        .order-status {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .status-delivered {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-shipped {
+            background: #cce7ff;
+            color: #004085;
+        }
+
+        .status-processing {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .tracking-info {
+            background: var(--white);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 15px;
+        }
+
+        .tracking-step {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0f2fe;
+        }
+
+        .tracking-step:last-child {
+            border-bottom: none;
+        }
+
+        .tracking-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: var(--racing-red);
+        }
+
+        .tracking-dot.inactive {
+            background: var(--chrome-silver);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px 15px;
+            }
+
+            .nav-container {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px 15px;
+            }
+
+            .brand-name {
+                font-size: 1.2rem;
+            }
+
+            .brand-tagline {
+                font-size: 0.6rem;
+            }
+
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 15px;
+            }
+
+            .nav-link {
+                padding: 8px 15px;
+                font-size: 0.9rem;
+            }
+
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+                gap: 20px;
+            }
+
+            .profile-tabs {
+                grid-template-columns: 1fr;
+            }
+
+            .auth-tabs {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            h1 {
+                font-size: 2.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <div class="brand-logo">
+                    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="20" cy="20" r="18" stroke="#e63946" stroke-width="2" fill="none"/>
+                        <circle cx="20" cy="20" r="12" stroke="#e63946" stroke-width="1.5" fill="none"/>
+                        <circle cx="20" cy="20" r="6" fill="#e63946"/>
+                        <rect x="18" y="8" width="4" height="6" fill="#e63946" rx="2"/>
+                        <rect x="18" y="26" width="4" height="6" fill="#e63946" rx="2"/>
+                        <rect x="8" y="18" width="6" height="4" fill="#e63946" rx="2"/>
+                        <rect x="26" y="18" width="6" height="4" fill="#e63946" rx="2"/>
+                    </svg>
+                    <div class="brand-text">
+                        <span class="brand-name">OEM AUTO PARTS</span>
+                        <span class="brand-tagline">Quality • Authentic • Reliable</span>
+                    </div>
+                </div>
+            </div>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="parts_inventory.html" class="nav-link">Parts Inventory</a>
+                <a href="reviews.html" class="nav-link">Reviews</a>
+                <a href="contact.html" class="nav-link">Contact</a>
+                <a href="profile.html" class="nav-link">Profile</a>
+                <a href="cart.html" class="nav-link cart-link">
+                    Cart (<span id="cart-count">0</span>)
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M3 1h1.5l.3 1.2h12.4c.5 0 .8.4.8.8 0 .1 0 .2-.1.3l-2.5 5c-.2.4-.6.7-1.1.7H7.1l-.3 1.2h9.4c.4 0 .8.4.8.8s-.4.8-.8.8H6c-.3 0-.6-.2-.7-.5L3.1 2H2c-.4 0-.8-.4-.8-.8S1.6 1 2 1h1zm5 14c.8 0 1.5.7 1.5 1.5S8.8 18 8 18s-1.5-.7-1.5-1.5S7.2 15 8 15zm8 0c.8 0 1.5.7 1.5 1.5s-.7 1.5-1.5 1.5-1.5-.7-1.5-1.5.7-1.5 1.5-1.5z"/>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1>User Profile</h1>
+
+        <!-- Authentication Section -->
+        <div id="auth-section" class="auth-section">
+            <div class="auth-tabs">
+                <button class="auth-tab active" onclick="switchTab('login')">Sign In</button>
+                <button class="auth-tab" onclick="switchTab('register')">Sign Up</button>
+            </div>
+
+            <!-- Login Form -->
+            <div id="login-form" class="auth-form active">
+                <form onsubmit="return handleLogin(event)">
+                    <div class="form-group">
+                        <label for="login-email">Email Address</label>
+                        <input type="email" id="login-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Password</label>
+                        <input type="password" id="login-password" required>
+                    </div>
+                    <button type="submit" class="btn">Sign In</button>
+                    <button type="button" class="btn btn-secondary" onclick="demoLogin()">Demo Login (Test Account)</button>
+                </form>
+            </div>
+
+            <!-- Register Form -->
+            <div id="register-form" class="auth-form">
+                <form onsubmit="return handleRegister(event)">
+                    <div class="form-group">
+                        <label for="register-name">Full Name</label>
+                        <input type="text" id="register-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-email">Email Address</label>
+                        <input type="email" id="register-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-password">Password</label>
+                        <input type="password" id="register-password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-confirm">Confirm Password</label>
+                        <input type="password" id="register-confirm" required>
+                    </div>
+                    <button type="submit" class="btn">Create Account</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Profile Section (Hidden by default) -->
+        <div id="profile-section" class="profile-section">
+            <div class="profile-header">
+                <div class="profile-avatar" id="profile-avatar">JD</div>
+                <div class="profile-info">
+                    <h2 id="profile-name">John Doe</h2>
+                    <p id="profile-email">john.doe@email.com</p>
+                    <span class="member-badge">Premium Member</span>
+                    <p style="margin-top: 15px;">
+                        <button class="btn btn-secondary" onclick="logout()" style="width: auto; padding: 8px 20px;">Sign Out</button>
+                    </p>
+                </div>
+            </div>
+
+            <div class="profile-tabs">
+                <!-- Order History -->
+                <div class="profile-tab" onclick="showOrderHistory()">
+                    <h3>
+                        <div class="profile-tab-icon">📦</div>
+                        Order History
+                    </h3>
+                    <p>View your past orders and purchase history</p>
+                </div>
+
+                <!-- Order Tracking -->
+                <div class="profile-tab" onclick="showOrderTracking()">
+                    <h3>
+                        <div class="profile-tab-icon">🚚</div>
+                        Track Orders
+                    </h3>
+                    <p>Track your current orders and shipments</p>
+                </div>
+
+                <!-- Account Settings -->
+                <div class="profile-tab" onclick="showAccountSettings()">
+                    <h3>
+                        <div class="profile-tab-icon">⚙️</div>
+                        Account Settings
+                    </h3>
+                    <p>Manage your account details and preferences</p>
+                </div>
+
+                <!-- Favorites -->
+                <div class="profile-tab" onclick="showFavorites()">
+                    <h3>
+                        <div class="profile-tab-icon">❤️</div>
+                        Favorites
+                    </h3>
+                    <p>Your saved parts and wish list items</p>
+                </div>
+            </div>
+
+            <!-- Order History Modal -->
+            <div id="order-history-modal" style="display: none; margin-top: 30px;">
+                <div style="background: white; padding: 30px; border-radius: 20px; box-shadow: 0 8px 25px var(--shadow);">
+                    <h3 style="margin-bottom: 20px;">Order History</h3>
+                    <div id="order-list">
+                        <div class="order-item">
+                            <div class="order-header">
+                                <span class="order-number">Order #AP123456</span>
+                                <span class="order-status status-delivered">Delivered</span>
+                            </div>
+                            <p><strong>2019 Toyota Camry Side Mirror</strong> - $89.99</p>
+                            <p>Order Date: January 15, 2024</p>
+                        </div>
+                        <div class="order-item">
+                            <div class="order-header">
+                                <span class="order-number">Order #AP123455</span>
+                                <span class="order-status status-shipped">Shipped</span>
+                            </div>
+                            <p><strong>2017 Honda Accord Headlight Assembly</strong> - $156.50</p>
+                            <p>Order Date: January 10, 2024</p>
+                        </div>
+                        <div class="order-item">
+                            <div class="order-header">
+                                <span class="order-number">Order #AP123454</span>
+                                <span class="order-status status-processing">Processing</span>
+                            </div>
+                            <p><strong>2020 Nissan Altima Front Bumper</strong> - $299.99</p>
+                            <p>Order Date: January 8, 2024</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Tracking Modal -->
+            <div id="order-tracking-modal" style="display: none; margin-top: 30px;">
+                <div style="background: white; padding: 30px; border-radius: 20px; box-shadow: 0 8px 25px var(--shadow);">
+                    <h3 style="margin-bottom: 20px;">Track Your Orders</h3>
+                    <div class="order-item">
+                        <div class="order-header">
+                            <span class="order-number">Order #AP123455</span>
+                            <span class="order-status status-shipped">In Transit</span>
+                        </div>
+                        <p><strong>2017 Honda Accord Headlight Assembly</strong></p>
+                        <p>Tracking: <strong>1Z999AA1234567890</strong></p>
+                        <div class="tracking-info">
+                            <div class="tracking-step">
+                                <div class="tracking-dot"></div>
+                                <div>
+                                    <strong>Order Confirmed</strong><br>
+                                    <small>January 10, 2024 - 2:30 PM</small>
+                                </div>
+                            </div>
+                            <div class="tracking-step">
+                                <div class="tracking-dot"></div>
+                                <div>
+                                    <strong>Package Shipped</strong><br>
+                                    <small>January 11, 2024 - 10:15 AM</small>
+                                </div>
+                            </div>
+                            <div class="tracking-step">
+                                <div class="tracking-dot"></div>
+                                <div>
+                                    <strong>In Transit</strong><br>
+                                    <small>January 12, 2024 - 8:45 AM</small>
+                                </div>
+                            </div>
+                            <div class="tracking-step">
+                                <div class="tracking-dot inactive"></div>
+                                <div>
+                                    <strong>Out for Delivery</strong><br>
+                                    <small>Estimated: January 13, 2024</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = null;
+
+        // Check if user is already logged in
+        window.addEventListener('load', () => {
+            const savedUser = localStorage.getItem('currentUser');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                showProfile();
+            }
+            updateCartCount();
+        });
+
+        function switchTab(tab) {
+            // Update tab buttons
+            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+            document.querySelector(`[onclick="switchTab('${tab}')"]`).classList.add('active');
+            
+            // Update forms
+            document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+            document.getElementById(`${tab}-form`).classList.add('active');
+        }
+
+        function handleLogin(event) {
+            event.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            // Simulate login validation
+            if (email && password) {
+                currentUser = {
+                    name: email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+                    email: email,
+                    memberSince: '2023-01-15',
+                    memberType: 'Premium'
+                };
+                
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                showProfile();
+                return false;
+            }
+            
+            alert('Please enter valid credentials');
+            return false;
+        }
+
+        function handleRegister(event) {
+            event.preventDefault();
+            const name = document.getElementById('register-name').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const confirm = document.getElementById('register-confirm').value;
+            
+            if (password !== confirm) {
+                alert('Passwords do not match');
+                return false;
+            }
+            
+            if (name && email && password) {
+                currentUser = {
+                    name: name,
+                    email: email,
+                    memberSince: new Date().toISOString().split('T')[0],
+                    memberType: 'Standard'
+                };
+                
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                showProfile();
+                return false;
+            }
+            
+            alert('Please fill in all fields');
+            return false;
+        }
+
+        function demoLogin() {
+            currentUser = {
+                name: 'John Doe',
+                email: 'john.doe@demo.com',
+                memberSince: '2023-01-15',
+                memberType: 'Premium'
+            };
+            
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            showProfile();
+        }
+
+        function showProfile() {
+            document.getElementById('auth-section').style.display = 'none';
+            document.getElementById('profile-section').style.display = 'block';
+            
+            // Update profile info
+            document.getElementById('profile-name').textContent = currentUser.name;
+            document.getElementById('profile-email').textContent = currentUser.email;
+            document.getElementById('profile-avatar').textContent = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            currentUser = null;
+            document.getElementById('auth-section').style.display = 'block';
+            document.getElementById('profile-section').style.display = 'none';
+            
+            // Hide any open modals
+            document.querySelectorAll('[id$="-modal"]').forEach(modal => {
+                modal.style.display = 'none';
+            });
+        }
+
+        function showOrderHistory() {
+            // Hide other modals
+            document.querySelectorAll('[id$="-modal"]').forEach(modal => {
+                modal.style.display = 'none';
+            });
+            document.getElementById('order-history-modal').style.display = 'block';
+        }
+
+        function showOrderTracking() {
+            // Hide other modals
+            document.querySelectorAll('[id$="-modal"]').forEach(modal => {
+                modal.style.display = 'none';
+            });
+            document.getElementById('order-tracking-modal').style.display = 'block';
+        }
+
+        function showAccountSettings() {
+            alert('Account settings feature coming soon!');
+        }
+
+        function showFavorites() {
+            alert('Favorites feature coming soon!');
+        }
+
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('autoPartsCart') || '[]');
+            const count = cart.reduce((total, item) => total + item.quantity, 0);
+            document.getElementById('cart-count').textContent = count;
+        }
+    </script>
+</body>
+</html>

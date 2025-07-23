@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Parts Inventory</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sofia+Sans+Extra+Condensed:ital,wght@0,400;0,600;0,800;1,800&display=swap" rel="stylesheet">
+  <style>
+      :root {
+          --racing-red: #e63946;
+          --deep-black: #1a1a1a;
+          --chrome-silver: #c5c6c7;
+          --steel-blue: #457b9d;
+          --white: #ffffff;
+          --shadow: rgba(26, 26, 26, 0.2);
+          --accent-orange: #ff6b35;
+      }
+
+      * {
+          box-sizing: border-box;
+          margin: 0;
+          padding: 0;
+      }
+
+      body { 
+          font-family: "Sofia Sans Extra Condensed", sans-serif; 
+          background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+          color: var(--deep-black);
+          min-height: 100vh;
+      }
+
+      .nav { 
+          background: linear-gradient(135deg, var(--deep-black) 0%, #2d3436 100%);
+          padding: 0;
+          box-shadow: 0 4px 20px var(--shadow);
+          position: sticky;
+          top: 0;
+          z-index: 100;
+          border-bottom: 3px solid var(--racing-red);
+      }
+
+      .nav-container {
+          max-width: 1200px;
+          margin: 0 auto;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 15px 20px;
+      }
+
+      .nav-brand {
+          display: flex;
+          align-items: center;
+      }
+
+      .brand-logo {
+          display: flex;
+          align-items: center;
+          gap: 15px;
+      }
+
+      .brand-text {
+          display: flex;
+          flex-direction: column;
+          line-height: 1.2;
+      }
+
+      .brand-name {
+          font-size: 1.4rem;
+          font-weight: 800;
+          color: var(--white);
+          letter-spacing: 1px;
+      }
+
+      .brand-tagline {
+          font-size: 0.7rem;
+          color: var(--chrome-silver);
+          text-transform: uppercase;
+          letter-spacing: 1.5px;
+          margin-top: 2px;
+      }
+
+      .nav-links {
+          display: flex;
+          align-items: center;
+          gap: 30px;
+      }
+
+      .nav-link {
+          color: var(--white);
+          text-decoration: none;
+          padding: 10px 20px;
+          border-radius: 30px;
+          font-weight: 600;
+          font-size: 1rem;
+          transition: all 0.3s ease;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          position: relative;
+      }
+
+      .nav-link:hover {
+          background: linear-gradient(135deg, var(--racing-red) 0%, var(--accent-orange) 100%);
+          color: var(--white);
+          transform: translateY(-2px);
+          box-shadow: 0 5px 15px rgba(230, 57, 70, 0.4);
+      }
+
+      .cart-link {
+          background: linear-gradient(135deg, var(--steel-blue) 0%, var(--racing-red) 100%);
+          font-weight: 700;
+      }
+
+      .cart-link:hover {
+          background: linear-gradient(135deg, var(--racing-red) 0%, var(--accent-orange) 100%);
+          transform: translateY(-3px) scale(1.05);
+      }
+
+      .container { 
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 40px 20px;
+          text-align: center;
+      }
+
+      h1 {
+          font-size: 3rem;
+          font-weight: 800;
+          color: var(--ebony);
+          margin-bottom: 40px;
+          text-shadow: 2px 2px 4px var(--shadow);
+      }
+
+      .inventory-grid { 
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+          gap: 25px;
+          justify-content: center;
+          margin-top: 30px;
+      }
+
+      .product { 
+          border: 2px solid var(--buff);
+          border-radius: 15px;
+          padding: 20px;
+          text-align: center;
+          cursor: pointer;
+          background: var(--white);
+          transition: all 0.3s ease;
+          box-shadow: 0 4px 15px var(--shadow);
+      }
+
+      .product:hover {
+          transform: translateY(-8px);
+          box-shadow: 0 12px 30px var(--shadow);
+          border-color: var(--ebony);
+      }
+
+      .product img { 
+          width: 100%;
+          height: 200px;
+          object-fit: cover;
+          border-radius: 10px;
+          margin-bottom: 15px;
+      }
+
+      .product h3 {
+          font-size: 1.3rem;
+          font-weight: 600;
+          color: var(--ebony);
+          margin-bottom: 10px;
+      }
+
+      .product p {
+          font-size: 1.1rem;
+          margin-bottom: 15px;
+          color: var(--ebony);
+          opacity: 0.8;
+      }
+
+      .product button {
+          background: var(--ebony);
+          color: var(--white);
+          border: none;
+          padding: 12px 25px;
+          border-radius: 25px;
+          font-size: 1rem;
+          font-weight: 600;
+          font-family: inherit;
+          cursor: pointer;
+          transition: all 0.3s ease;
+      }
+
+      .product button:hover {
+          background: var(--buff);
+          color: var(--ebony);
+          transform: translateY(-2px);
+          box-shadow: 0 5px 15px var(--shadow);
+      }
+
+      @media (max-width: 768px) {
+          .container {
+              padding: 20px 15px;
+          }
+
+          h1 {
+              font-size: 2.2rem;
+              text-align: center;
+          }
+
+          .inventory-grid {
+              grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+              gap: 20px;
+          }
+
+          .nav-container {
+              flex-direction: column;
+              gap: 15px;
+              padding: 15px 15px;
+          }
+
+          .brand-name {
+              font-size: 1.2rem;
+          }
+
+          .brand-tagline {
+              font-size: 0.6rem;
+          }
+
+          .nav-links {
+              flex-wrap: wrap;
+              justify-content: center;
+              gap: 15px;
+          }
+
+          .nav-link {
+              padding: 8px 15px;
+              font-size: 0.9rem;
+          }
+
+          .product {
+              padding: 15px;
+          }
+
+          .product h3 {
+              font-size: 1.1rem;
+          }
+
+          .product p {
+              font-size: 1rem;
+          }
+
+          .product button {
+              padding: 10px 20px;
+              font-size: 0.9rem;
+          }
+      }
+
+      .filters-section {
+          background: var(--white);
+          border-radius: 15px;
+          padding: 25px;
+          margin-bottom: 30px;
+          box-shadow: 0 4px 15px var(--shadow);
+      }
+      
+      .filters-row {
+          display: flex;
+          gap: 20px;
+          margin-bottom: 20px;
+          flex-wrap: wrap;
+      }
+      
+      .filters-row:last-child {
+          margin-bottom: 0;
+      }
+      
+      .filter-group {
+          display: flex;
+          flex-direction: column;
+          min-width: 180px;
+      }
+      
+      .filter-group.full-width {
+          flex: 1;
+          min-width: 300px;
+      }
+      
+      .filter-group label {
+          font-weight: 600;
+          color: var(--ebony);
+          margin-bottom: 8px;
+          font-size: 0.9rem;
+      }
+      
+      .filter-group select,
+      .filter-group input {
+          padding: 10px 12px;
+          border: 2px solid var(--buff);
+          border-radius: 8px;
+          font-family: inherit;
+          font-size: 0.9rem;
+          transition: all 0.3s ease;
+      }
+      
+      .filter-group select:focus,
+      .filter-group input:focus {
+          outline: none;
+          border-color: var(--ebony);
+          box-shadow: 0 0 10px rgba(212, 170, 125, 0.3);
+      }
+      
+      .clear-filters-btn {
+          background: var(--buff);
+          color: var(--ebony);
+          border: none;
+          padding: 10px 20px;
+          border-radius: 8px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          margin-top: 24px;
+      }
+      
+      .clear-filters-btn:hover {
+          background: var(--ebony);
+          color: var(--white);
+          transform: translateY(-2px);
+      }
+      
+      .results-info {
+          margin-bottom: 20px;
+          font-weight: 600;
+          color: var(--ebony);
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          flex-wrap: wrap;
+          gap: 10px;
+      }
+
+      .sort-options {
+          display: flex;
+          gap: 10px;
+          align-items: center;
+          flex-wrap: wrap;
+      }
+
+      .sort-btn {
+          background: var(--buff);
+          color: var(--ebony);
+          border: none;
+          padding: 6px 12px;
+          border-radius: 15px;
+          font-size: 0.8rem;
+          cursor: pointer;
+          transition: all 0.3s ease;
+      }
+
+      .sort-btn:hover, .sort-btn.active {
+          background: var(--ebony);
+          color: var(--white);
+      }
+
+      .loading-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0,0,0,0.5);
+          display: none;
+          justify-content: center;
+          align-items: center;
+          z-index: 1000;
+      }
+
+      .loading-content {
+          background: var(--white);
+          padding: 30px;
+          border-radius: 15px;
+          text-align: center;
+      }
+
+      .loading-spinner {
+          display: inline-block;
+          width: 40px;
+          height: 40px;
+          border: 4px solid var(--azure-web);
+          border-radius: 50%;
+          border-top-color: var(--ebony);
+          animation: spin 1s ease-in-out infinite;
+          margin-bottom: 15px;
+      }
+
+      @keyframes spin {
+          to { transform: rotate(360deg); }
+      }
+
+      @media (max-width: 768px) {
+          .filters-row {
+              flex-direction: column;
+              gap: 15px;
+          }
+          
+          .filter-group {
+              min-width: auto;
+          }
+          
+          .filter-group.full-width {
+              min-width: auto;
+          }
+      }
+
+      @media (max-width: 480px) {
+          h1 {
+              font-size: 1.8rem;
+              margin-bottom: 20px;
+          }
+
+          .container {
+              padding: 15px 10px;
+          }
+
+          .nav a {
+              margin: 0 2px;
+              padding: 6px 8px;
+              font-size: 0.8rem;
+          }
+          
+          .filters-section {
+              padding: 15px;
+              margin-bottom: 20px;
+          }
+
+          .inventory-grid {
+              grid-template-columns: 1fr;
+              gap: 15px;
+          }
+
+          .product {
+              padding: 12px;
+          }
+
+          .product img {
+              height: 150px;
+          }
+
+          .product h3 {
+              font-size: 1rem;
+              margin-bottom: 8px;
+          }
+
+          .product p {
+              font-size: 0.9rem;
+              margin-bottom: 12px;
+          }
+
+          .product button {
+              padding: 8px 16px;
+              font-size: 0.85rem;
+              border-radius: 20px;
+          }
+      }
+  </style>
+</head>
+<body>
+  <div class="nav">
+      <div class="nav-container">
+          <div class="nav-brand">
+              <div class="brand-logo">
+                  <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <circle cx="20" cy="20" r="18" stroke="#e63946" stroke-width="2" fill="none"/>
+                      <circle cx="20" cy="20" r="12" stroke="#e63946" stroke-width="1.5" fill="none"/>
+                      <circle cx="20" cy="20" r="6" fill="#e63946"/>
+                      <rect x="18" y="8" width="4" height="6" fill="#e63946" rx="2"/>
+                      <rect x="18" y="26" width="4" height="6" fill="#e63946" rx="2"/>
+                      <rect x="8" y="18" width="6" height="4" fill="#e63946" rx="2"/>
+                      <rect x="26" y="18" width="6" height="4" fill="#e63946" rx="2"/>
+                  </svg>
+                  <div class="brand-text">
+                      <span class="brand-name">OEM AUTO PARTS</span>
+                      <span class="brand-tagline">Quality • Authentic • Reliable</span>
+                  </div>
+              </div>
+          </div>
+          <div class="nav-links">
+              <a href="index.html" class="nav-link">Home</a>
+              <a href="parts_inventory.html" class="nav-link">Parts Inventory</a>
+              <a href="reviews.html" class="nav-link">Reviews</a>
+              <a href="contact.html" class="nav-link">Contact</a>
+              <a href="profile.html" class="nav-link">Profile</a>
+              <a href="cart.html" class="nav-link cart-link">
+                  Cart (<span id="cart-count">0</span>)
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M3 1h1.5l.3 1.2h12.4c.5 0 .8.4.8.8 0 .1 0 .2-.1.3l-2.5 5c-.2.4-.6.7-1.1.7H7.1l-.3 1.2h9.4c.4 0 .8.4.8.8s-.4.8-.8.8H6c-.3 0-.6-.2-.7-.5L3.1 2H2c-.4 0-.8-.4-.8-.8S1.6 1 2 1h1zm5 14c.8 0 1.5.7 1.5 1.5S8.8 18 8 18s-1.5-.7-1.5-1.5S7.2 15 8 15zm8 0c.8 0 1.5.7 1.5 1.5s-.7 1.5-1.5 1.5-1.5-.7-1.5-1.5.7-1.5 1.5-1.5z"/>
+                  </svg>
+              </a>
+          </div>
+      </div>
+  </div>
+
+  <div class="container">
+    <h1>Parts Inventory</h1>
+    
+    <!-- Advanced Filters Section -->
+    <div class="filters-section">
+      <div class="filters-row">
+        <div class="filter-group">
+          <label for="car-brand-filter">Car Brand:</label>
+          <select id="car-brand-filter" onchange="applyFilters()">
+            <option value="">All Brands</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label for="car-year-filter">Year:</label>
+          <select id="car-year-filter" onchange="applyFilters()">
+            <option value="">All Years</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label for="price-sort">Sort by Price:</label>
+          <select id="price-sort" onchange="applyFilters()">
+            <option value="">Default</option>
+            <option value="low-high">Low to High</option>
+            <option value="high-low">High to Low</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="filters-row">
+        <div class="filter-group full-width">
+          <label for="keyword-search">Search Keywords:</label>
+          <input type="text" id="keyword-search" placeholder="Search by part name, model, or keywords..." onkeyup="applyFilters()">
+        </div>
+      </div>
+      
+      <div class="filters-row">
+        <div class="filter-group">
+          <label for="price-min">Min Price ($):</label>
+          <input type="number" id="price-min" placeholder="0" onchange="applyFilters()">
+        </div>
+        
+        <div class="filter-group">
+          <label for="price-max">Max Price ($):</label>
+          <input type="number" id="price-max" placeholder="1000" onchange="applyFilters()">
+        </div>
+        
+        <div class="filter-group">
+          <button onclick="clearFilters()" class="clear-filters-btn">Clear All Filters</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Results Count -->
+    <div class="results-info">
+      <span id="results-count">Loading parts...</span>
+      <div class="sort-options">
+        <span style="font-size: 0.9rem; color: var(--ebony); opacity: 0.8;">Quick Sort:</span>
+        <button class="sort-btn" onclick="quickSort('name')">Name</button>
+        <button class="sort-btn" onclick="quickSort('price-asc')">Price ↑</button>
+        <button class="sort-btn" onclick="quickSort('price-desc')">Price ↓</button>
+        <button class="sort-btn" onclick="quickSort('year')">Year</button>
+      </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay">
+      <div class="loading-content">
+        <div class="loading-spinner"></div>
+        <p>Loading parts inventory...</p>
+      </div>
+    </div>
+    
+    <div id="inventory-list" class="inventory-grid"></div>
+  </div>
+
+  <script>
+    let inventoryData = [];
+    let filteredData = [];
+    let carMemory = {};
+    let availableBrands = [];
+    let availableYears = [];
+
+    async function loadCarData() {
+      try {
+        const carResponse = await fetch('car_memory.json');
+        if (!carResponse.ok) throw new Error(`Car data error: ${carResponse.status}`);
+        carMemory = await carResponse.json();
+      } catch (error) {
+        console.error("Error loading car data:", error);
+      }
+    }
+
+    async function loadInventoryData() {
+      showLoading();
+      
+      try {
+        const response = await fetch('combined_listing.csv');
+        if (!response.ok) throw new Error(`Inventory error: ${response.status}`);
+        const csvText = await response.text();
+        inventoryData = parseCSV(csvText);
+        filteredData = [...inventoryData];
+        
+        // Populate filter options
+        populateFilters();
+        hideLoading();
+        displayInventory();
+        
+        // Cache data for faster subsequent loads
+        localStorage.setItem('inventoryCache', JSON.stringify({
+          data: inventoryData,
+          timestamp: Date.now()
+        }));
+        
+      } catch (error) {
+        console.error("Error loading inventory data:", error);
+        hideLoading();
+        
+        // Try to load from cache
+        const cache = localStorage.getItem('inventoryCache');
+        if (cache) {
+          const parsed = JSON.parse(cache);
+          // Use cache if less than 1 hour old
+          if (Date.now() - parsed.timestamp < 3600000) {
+            inventoryData = parsed.data;
+            filteredData = [...inventoryData];
+            populateFilters();
+            displayInventory();
+            return;
+          }
+        }
+        
+        document.getElementById("inventory-list").innerHTML = `
+          <div style="text-align: center; padding: 40px;">
+            <h3>Unable to load inventory</h3>
+            <p>Please check your connection and <button onclick="location.reload()" style="background: var(--ebony); color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer;">try again</button></p>
+          </div>
+        `;
+      }
+    }
+
+    // Simple CSV parser (assuming tab-delimited)
+    function parseCSV(csvText) {
+      const lines = csvText.trim().split("\n");
+      if (lines.length < 2) return [];
+      const header = lines[0].split("\t");
+      const data = [];
+      for (let i = 1; i < lines.length; i++) {
+        const row = lines[i].split("\t");
+        if (row.length !== header.length) continue;
+        const obj = {};
+        header.forEach((col, j) => {
+          obj[col] = row[j];
+        });
+        data.push({
+          title: obj["*Title"] || obj["Scraped Title"] || obj["Original Title"] || "No Title",
+          price: parseFloat((obj["Scraped Price"] || obj["Original Price"] || "").replace(/[^\d.]/g, "")) || 0,
+          image: obj["PicURL"] || "",
+          description: obj["*Description"] || "",
+          "Part Number": obj["Part Number"] || "",
+          "Car Brand": obj["Car Brand"] || "",
+          "Manufacturer Part Number": obj["Manufacturer Part Number"] || "",
+          "Year": obj["Year"] || "",
+          "Car Model": obj["Car Model"] || "",
+          "Stock Number": obj["Stock Number"] || "",
+          "VIN Number": obj["VIN Number"] || "",
+          "*Category": obj["*Category"] || "",
+          "*ConditionID": obj["*ConditionID"] || "",
+          "*Format": obj["*Format"] || "",
+          "*Duration": obj["*Duration"] || "",
+          "*StartPrice": obj["*StartPrice"] || "",
+          "*Location": obj["*Location"] || "",
+          "ShippingType": obj["ShippingType"] || "",
+          "ShippingService-1:Option": obj["ShippingService-1:Option"] || "",
+          "ShippingService-1:Cost": obj["ShippingService-1:Cost"] || "",
+          "*DispatchTimeMax": obj["*DispatchTimeMax"] || "",
+          "*ReturnsAcceptedOption": obj["*ReturnsAcceptedOption"] || "",
+          "Compatibilities": obj["Compatibilities"] || ""
+        });
+      }
+      return data;
+    }
+
+    // getAllImages: Split the image URLs and return all valid images
+    function getAllImages(imageString) {
+      if (!imageString) return [];
+      // Split by pipe or comma and trim
+      const urls = imageString.split(/[|,]/).map(url => url.trim()).filter(url => url.length > 0);
+      // Filter out any URL that contains unwanted patterns
+      const filteredUrls = urls.filter(url => 
+        !url.includes("DOcAAOSw8NplLtwK") && 
+        (url.includes('ebayimg.com') || url.includes('http'))
+      );
+      return filteredUrls;
+    }
+
+    // chooseBestImage: Get the highest resolution image from available images
+    function chooseBestImage(imageString) {
+      const images = getAllImages(imageString);
+      if (images.length === 0) return "";
+      
+      let bestUrl = images[0];
+      let bestSize = 0;
+      const regex = /s-l(\d+)\./;
+      
+      images.forEach(url => {
+        const match = url.match(regex);
+        if (match) {
+          const size = parseInt(match[1], 10);
+          if (size > bestSize) {
+            bestSize = size;
+            bestUrl = url;
+          }
+        }
+      });
+      return bestUrl;
+    }
+
+    function mapMakeModel(title) {
+      for (const make in carMemory) {
+        for (const model in carMemory[make]) {
+          const regex = new RegExp(`\\b${make}\\b.*?\\b${model}\\b`, "i");
+          if (regex.test(title)) {
+            return `${make} ${model}`;
+          }
+        }
+      }
+      return "";
+    }
+
+    function cleanTitle(title, mappedCar) {
+      let cleanedTitle = title.replace(/Unknown Make Unknown Year/gi, "").trim();
+      if (mappedCar) {
+        const regex = new RegExp(`\\b${mappedCar}\\b`, "gi");
+        cleanedTitle = cleanedTitle.replace(regex, "").trim();
+        return `${mappedCar} ${cleanedTitle}`.trim();
+      }
+      return cleanedTitle;
+    }
+
+    function populateFilters() {
+      // Get unique brands and years
+      const brands = new Set();
+      const years = new Set();
+      
+      inventoryData.forEach(part => {
+        if (part["Car Brand"] && part["Car Brand"].trim()) {
+          brands.add(part["Car Brand"].trim());
+        }
+        if (part["Year"] && part["Year"].trim()) {
+          years.add(part["Year"].trim());
+        }
+      });
+      
+      availableBrands = Array.from(brands).sort();
+      availableYears = Array.from(years).sort((a, b) => b - a); // Newest first
+      
+      // Populate brand filter
+      const brandFilter = document.getElementById("car-brand-filter");
+      availableBrands.forEach(brand => {
+        const option = document.createElement("option");
+        option.value = brand;
+        option.textContent = brand;
+        brandFilter.appendChild(option);
+      });
+      
+      // Populate year filter
+      const yearFilter = document.getElementById("car-year-filter");
+      availableYears.forEach(year => {
+        const option = document.createElement("option");
+        option.value = year;
+        option.textContent = year;
+        yearFilter.appendChild(option);
+      });
+    }
+
+    function applyFilters() {
+      showLoading();
+      
+      // Small delay to show loading state
+      setTimeout(() => {
+        const brandFilter = document.getElementById("car-brand-filter").value;
+        const yearFilter = document.getElementById("car-year-filter").value;
+        const priceSort = document.getElementById("price-sort").value;
+        const keywordSearch = document.getElementById("keyword-search").value.toLowerCase();
+        const priceMin = parseFloat(document.getElementById("price-min").value) || 0;
+        const priceMax = parseFloat(document.getElementById("price-max").value) || Infinity;
+        
+        // Filter the data
+        filteredData = inventoryData.filter(part => {
+          // Brand filter
+          if (brandFilter && part["Car Brand"] !== brandFilter) return false;
+          
+          // Year filter
+          if (yearFilter && part["Year"] !== yearFilter) return false;
+          
+          // Price range filter
+          if (part.price < priceMin || part.price > priceMax) return false;
+          
+          // Keyword search with fuzzy matching
+          if (keywordSearch) {
+            const searchText = [
+              part.title,
+              part["Car Brand"],
+              part["Car Model"],
+              part["Part Number"],
+              part.description,
+              part["*Category"]
+            ].join(" ").toLowerCase();
+            
+            // Support partial matching
+            const keywords = keywordSearch.split(' ').filter(k => k.length > 0);
+            const hasAllKeywords = keywords.every(keyword => 
+              searchText.includes(keyword) || 
+              searchText.includes(keyword.slice(0, -1)) // Allow partial matches
+            );
+            
+            if (!hasAllKeywords) return false;
+          }
+          
+          return true;
+        });
+        
+        // Sort the filtered data
+        if (priceSort === "low-high") {
+          filteredData.sort((a, b) => a.price - b.price);
+        } else if (priceSort === "high-low") {
+          filteredData.sort((a, b) => b.price - a.price);
+        }
+        
+        hideLoading();
+        displayInventory();
+      }, 300);
+    }
+
+    function quickSort(type) {
+      // Remove active class from all buttons
+      document.querySelectorAll('.sort-btn').forEach(btn => btn.classList.remove('active'));
+      
+      // Add active class to clicked button
+      event.target.classList.add('active');
+      
+      switch(type) {
+        case 'name':
+          filteredData.sort((a, b) => a.title.localeCompare(b.title));
+          break;
+        case 'price-asc':
+          filteredData.sort((a, b) => a.price - b.price);
+          break;
+        case 'price-desc':
+          filteredData.sort((a, b) => b.price - a.price);
+          break;
+        case 'year':
+          filteredData.sort((a, b) => (b["Year"] || "").localeCompare(a["Year"] || ""));
+          break;
+      }
+      
+      displayInventory();
+    }
+
+    function showLoading() {
+      document.getElementById('loading-overlay').style.display = 'flex';
+    }
+
+    function hideLoading() {
+      document.getElementById('loading-overlay').style.display = 'none';
+    }
+
+    function clearFilters() {
+      document.getElementById("car-brand-filter").value = "";
+      document.getElementById("car-year-filter").value = "";
+      document.getElementById("price-sort").value = "";
+      document.getElementById("keyword-search").value = "";
+      document.getElementById("price-min").value = "";
+      document.getElementById("price-max").value = "";
+      
+      filteredData = [...inventoryData];
+      displayInventory();
+    }
+
+    function displayInventory() {
+      const inventoryDiv = document.getElementById("inventory-list");
+      const resultsCount = document.getElementById("results-count");
+      
+      resultsCount.textContent = `Showing ${filteredData.length} of ${inventoryData.length} parts`;
+      
+      if (filteredData.length === 0) {
+        inventoryDiv.innerHTML = "<p>No parts found matching your criteria. Try adjusting your filters.</p>";
+        return;
+      }
+      
+      let partsHTML = "";
+      filteredData.forEach(part => {
+        const allImages = getAllImages(part.image);
+        const bestImage = chooseBestImage(part.image);
+        const mappedCar = mapMakeModel(part.title);
+        const cleanedTitle = cleanTitle(part.title, mappedCar);
+        
+        // Show VIN if available
+        const vinInfo = part["VIN Number"] && part["VIN Number"] !== "Not found" ? 
+          `<p style="font-size: 0.9rem; color: var(--steel-blue);">VIN: ${part["VIN Number"]}</p>` : '';
+        
+        partsHTML += `
+          <div class="product" 
+            data-title="${encodeURIComponent(cleanedTitle)}" 
+            data-price="${encodeURIComponent(part.price)}" 
+            data-images="${encodeURIComponent(part.image)}" 
+            data-description="${encodeURIComponent(part.description)}"
+            data-part-number="${encodeURIComponent(part["Part Number"])}"
+            data-car-brand="${encodeURIComponent(part["Car Brand"])}"
+            data-manufacturer-part-number="${encodeURIComponent(part["Manufacturer Part Number"])}"
+            data-year="${encodeURIComponent(part["Year"])}"
+            data-car-model="${encodeURIComponent(part["Car Model"])}"
+            data-stock-number="${encodeURIComponent(part["Stock Number"])}"
+            data-vin-number="${encodeURIComponent(part["VIN Number"] || "Not found")}"
+            data-category="${encodeURIComponent(part["*Category"])}"
+            data-conditionid="${encodeURIComponent(part["*ConditionID"])}"
+            data-format="${encodeURIComponent(part["*Format"])}"
+            data-duration="${encodeURIComponent(part["*Duration"])}"
+            data-startprice="${encodeURIComponent(part["*StartPrice"])}"
+            data-location="${encodeURIComponent(part["*Location"])}"
+            data-shippingtype="${encodeURIComponent(part["ShippingType"])}"
+            data-shippingservice1option="${encodeURIComponent(part["ShippingService-1:Option"])}"
+            data-shippingservice1cost="${encodeURIComponent(part["ShippingService-1:Cost"])}"
+            data-dispatchtimemax="${encodeURIComponent(part["*DispatchTimeMax"])}"
+            data-returnsacceptedoption="${encodeURIComponent(part["*ReturnsAcceptedOption"])}"
+            data-compatibilities="${encodeURIComponent(part["Compatibilities"])}">
+            ${ bestImage ? `<img src="${bestImage}" alt="Part Image" loading="lazy"><br>` : "" }
+            <h3>${cleanedTitle}</h3>
+            <p>Price: $${part.price.toFixed(2)}</p>
+            ${vinInfo}
+            ${allImages.length > 1 ? `<p style="font-size: 0.8rem; color: var(--steel-blue);">📷 ${allImages.length} photos available</p>` : ''}
+            <button>Add to Cart</button>
+          </div>
+        `;
+      });
+      inventoryDiv.innerHTML = partsHTML || "<p>No parts available.</p>";
+
+      // Add event listeners for product clicks and cart buttons
+      document.querySelectorAll(".product").forEach(product => {
+        // Add click listener for viewing details (exclude button clicks)
+        product.addEventListener("click", function(e) {
+          if (e.target.tagName === 'BUTTON') return; // Don't trigger on button click
+
+          viewPartDetails(
+            decodeURIComponent(this.dataset.title),
+            decodeURIComponent(this.dataset.price),
+            decodeURIComponent(this.dataset.images),
+            decodeURIComponent(this.dataset.description),
+            {
+              "Part Number": decodeURIComponent(this.dataset.partNumber),
+              "Car Brand": decodeURIComponent(this.dataset.carBrand),
+              "Manufacturer Part Number": decodeURIComponent(this.dataset.manufacturerPartNumber),
+              "Year": decodeURIComponent(this.dataset.year),
+              "Car Model": decodeURIComponent(this.dataset.carModel),
+              "Stock Number": decodeURIComponent(this.dataset.stockNumber),
+              "VIN Number": decodeURIComponent(this.dataset.vinNumber),
+              "*Category": decodeURIComponent(this.dataset.category),
+              "*ConditionID": decodeURIComponent(this.dataset.conditionid),
+              "*Format": decodeURIComponent(this.dataset.format),
+              "*Duration": decodeURIComponent(this.dataset.duration),
+              "*StartPrice": decodeURIComponent(this.dataset.startprice),
+              "*Location": decodeURIComponent(this.dataset.location),
+              "ShippingType": decodeURIComponent(this.dataset.shippingtype),
+              "ShippingService-1:Option": decodeURIComponent(this.dataset.shippingservice1option),
+              "ShippingService-1:Cost": decodeURIComponent(this.dataset.shippingservice1cost),
+              "*DispatchTimeMax": decodeURIComponent(this.dataset.dispatchtimemax),
+              "*ReturnsAcceptedOption": decodeURIComponent(this.dataset.returnsacceptedoption),
+              "Compatibilities": decodeURIComponent(this.dataset.compatibilities)
+            }
+          );
+        });
+
+        // Add click listener for cart button
+        const addToCartBtn = product.querySelector('button');
+        if (addToCartBtn) {
+          addToCartBtn.addEventListener('click', function(e) {
+            e.stopPropagation(); // Prevent product click event
+
+            const cartItem = {
+              title: decodeURIComponent(product.dataset.title),
+              price: parseFloat(decodeURIComponent(product.dataset.price)),
+              images: decodeURIComponent(product.dataset.images),
+              partNumber: decodeURIComponent(product.dataset.partNumber),
+              description: decodeURIComponent(product.dataset.description)
+            };
+
+            addToCartFromInventory(cartItem);
+          });
+        }
+      });
+    }
+
+    function viewPartDetails(title, price, images, description, extraFields) {
+      console.log("Clicked Part:", title, price, images, description, extraFields);
+      if (!title || !price || !images) {
+        alert("Error: Missing part details!");
+        return;
+      }
+      const imageArray = images.includes('|') ? images.split('|') : [images];
+      const partDetails = Object.assign({
+        title: title,
+        price: price,
+        images: imageArray,
+        description: description
+      }, extraFields);
+      localStorage.setItem('partDetails', JSON.stringify(partDetails));
+      window.location.href = 'part-details.html';
+    }
+
+    // Cart functionality
+    function addToCartFromInventory(item) {
+      let cart = [];
+      const savedCart = localStorage.getItem('autoPartsCart');
+      if (savedCart) {
+        cart = JSON.parse(savedCart);
+      }
+
+      const existingItem = cart.find(cartItem => cartItem.partNumber === item.partNumber);
+      if (existingItem) {
+        existingItem.quantity += 1;
+      } else {
+        cart.push({
+          ...item,
+          quantity: 1
+        });
+      }
+
+      localStorage.setItem('autoPartsCart', JSON.stringify(cart));
+      updateCartCount();
+
+      // Show feedback
+      const button = event.target;
+      const originalText = button.textContent;
+      button.textContent = 'Added!';
+      button.style.background = '#27ae60';
+      setTimeout(() => {
+        button.textContent = originalText;
+        button.style.background = '';
+      }, 1500);
+    }
+
+    function updateCartCount() {
+      const cart = JSON.parse(localStorage.getItem('autoPartsCart') || '[]');
+      const count = cart.reduce((total, item) => total + item.quantity, 0);
+      document.getElementById('cart-count').textContent = count;
+    }
+
+    window.onload = async () => {
+      await loadCarData();
+      await loadInventoryData();
+      updateCartCount(); // Update cart count on page load
+    };
+  </script>
+</body>
+</html>

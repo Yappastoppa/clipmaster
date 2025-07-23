@@ -1,0 +1,914 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - Auto Parts Shop</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sofia+Sans+Extra+Condensed:ital,wght@0,400;0,600;0,800;1,800&display=swap" rel="stylesheet">
+  <style>
+      :root {
+          --racing-red: #e63946;
+          --deep-black: #1a1a1a;
+          --chrome-silver: #c5c6c7;
+          --steel-blue: #457b9d;
+          --white: #ffffff;
+          --shadow: rgba(26, 26, 26, 0.2);
+          --accent-orange: #ff6b35;
+      }
+
+      * {
+          box-sizing: border-box;
+          margin: 0;
+          padding: 0;
+      }
+
+      body { 
+          font-family: "Sofia Sans Extra Condensed", sans-serif; 
+          background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+          color: var(--deep-black);
+          min-height: 100vh;
+      }
+
+      .login-container {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          min-height: 100vh;
+          padding: 20px;
+      }
+
+      .login-form {
+          background: var(--white);
+          padding: 40px;
+          border-radius: 20px;
+          box-shadow: 0 8px 25px var(--shadow);
+          width: 100%;
+          max-width: 400px;
+          text-align: center;
+      }
+
+      .admin-container {
+          display: none;
+          max-width: 1400px;
+          margin: 0 auto;
+          padding: 20px;
+      }
+
+      .admin-header {
+          background: var(--deep-black);
+          color: var(--white);
+          padding: 20px;
+          border-radius: 15px;
+          margin-bottom: 30px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+      }
+
+      .admin-nav {
+          display: flex;
+          gap: 15px;
+          margin: 20px 0;
+      }
+
+      .nav-btn {
+          background: var(--steel-blue);
+          color: var(--white);
+          border: none;
+          padding: 12px 20px;
+          border-radius: 25px;
+          cursor: pointer;
+          font-weight: 600;
+          transition: all 0.3s ease;
+      }
+
+      .nav-btn:hover,
+      .nav-btn.active {
+          background: var(--racing-red);
+          transform: translateY(-2px);
+      }
+
+      .admin-section {
+          background: var(--white);
+          padding: 30px;
+          border-radius: 15px;
+          box-shadow: 0 4px 15px var(--shadow);
+          margin-bottom: 30px;
+          display: none;
+      }
+
+      .admin-section.active {
+          display: block;
+      }
+
+      .stats-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 20px;
+          margin-bottom: 30px;
+      }
+
+      .stat-card {
+          background: linear-gradient(135deg, var(--steel-blue), var(--racing-red));
+          color: var(--white);
+          padding: 25px;
+          border-radius: 15px;
+          text-align: center;
+      }
+
+      .stat-number {
+          font-size: 2.5rem;
+          font-weight: 800;
+          margin-bottom: 10px;
+      }
+
+      .stat-label {
+          font-size: 1.1rem;
+          opacity: 0.9;
+      }
+
+      h1, h2 {
+          margin-bottom: 20px;
+          color: var(--deep-black);
+      }
+
+      h1 {
+          font-size: 2.5rem;
+          font-weight: 800;
+      }
+
+      h2 {
+          font-size: 1.8rem;
+          font-weight: 600;
+      }
+
+      .form-group {
+          margin-bottom: 20px;
+          text-align: left;
+      }
+
+      .form-group label {
+          display: block;
+          margin-bottom: 8px;
+          font-weight: 600;
+          color: var(--deep-black);
+      }
+
+      .form-group input,
+      .form-group textarea,
+      .form-group select {
+          width: 100%;
+          padding: 12px 15px;
+          border: 2px solid var(--steel-blue);
+          border-radius: 10px;
+          font-size: 1rem;
+          font-family: inherit;
+          transition: border-color 0.3s ease;
+      }
+
+      .form-group input:focus,
+      .form-group textarea:focus,
+      .form-group select:focus {
+          outline: none;
+          border-color: var(--racing-red);
+      }
+
+      .btn {
+          background: var(--racing-red);
+          color: var(--white);
+          border: none;
+          padding: 15px 30px;
+          border-radius: 50px;
+          font-size: 1.1rem;
+          font-weight: 600;
+          font-family: inherit;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          margin: 5px;
+      }
+
+      .btn:hover {
+          background: var(--accent-orange);
+          transform: translateY(-2px);
+          box-shadow: 0 5px 15px var(--shadow);
+      }
+
+      .btn-secondary {
+          background: var(--steel-blue);
+      }
+
+      .btn-danger {
+          background: #dc3545;
+      }
+
+      .btn-success {
+          background: #28a745;
+      }
+
+      .review-item {
+          background: #f8f9fa;
+          padding: 20px;
+          border-radius: 10px;
+          margin-bottom: 15px;
+          border-left: 4px solid var(--steel-blue);
+      }
+
+      .review-pending {
+          border-left-color: var(--accent-orange);
+      }
+
+      .review-approved {
+          border-left-color: #28a745;
+      }
+
+      .review-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 10px;
+      }
+
+      .review-actions {
+          display: flex;
+          gap: 10px;
+      }
+
+      .data-table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 20px;
+      }
+
+      .data-table th,
+      .data-table td {
+          padding: 12px;
+          text-align: left;
+          border-bottom: 1px solid #ddd;
+      }
+
+      .data-table th {
+          background: var(--deep-black);
+          color: var(--white);
+          font-weight: 600;
+      }
+
+      .success-message,
+      .error-message {
+          padding: 15px;
+          border-radius: 10px;
+          margin: 15px 0;
+          text-align: center;
+          display: none;
+      }
+
+      .success-message {
+          background: #d4edda;
+          color: #155724;
+          border: 1px solid #c3e6cb;
+      }
+
+      .error-message {
+          background: #f8d7da;
+          color: #721c24;
+          border: 1px solid #f5c6cb;
+      }
+
+      @media (max-width: 768px) {
+          .admin-nav {
+              flex-direction: column;
+          }
+
+          .stats-grid {
+              grid-template-columns: 1fr;
+          }
+
+          .admin-header {
+              flex-direction: column;
+              gap: 15px;
+              text-align: center;
+          }
+      }
+  </style>
+</head>
+<body>
+  <!-- Login Form -->
+  <div id="login-container" class="login-container">
+      <div class="login-form">
+          <h1>🔐 Secure Admin Login</h1>
+          <div id="security-notice" style="background: #e74c3c; color: white; padding: 10px; border-radius: 5px; margin-bottom: 20px; font-size: 0.9rem;">
+              🛡️ This system is protected by advanced security measures. All access attempts are logged.
+          </div>
+          <form id="admin-login">
+              <div class="form-group">
+                  <label for="username">👤 Username</label>
+                  <input type="text" id="username" required autocomplete="username">
+              </div>
+              <div class="form-group">
+                  <label for="password">🔑 Password</label>
+                  <input type="password" id="password" required autocomplete="current-password">
+              </div>
+              <div class="form-group">
+                  <label for="two-factor">📱 2FA Code</label>
+                  <input type="text" id="two-factor" placeholder="Current timestamp (seconds)" required>
+                  <small>Use: <span id="current-2fa"></span></small>
+              </div>
+              <div class="form-group">
+                  <label for="admin-key">🗝️ Admin Security Key</label>
+                  <input type="password" id="admin-key" required>
+              </div>
+              <button type="submit" class="btn">🚀 Secure Login</button>
+              <div class="error-message" id="login-error">Invalid credentials or security verification failed</div>
+              <div style="margin-top: 20px; padding: 15px; background: #2c3e50; color: white; border-radius: 10px; font-size: 0.8rem;">
+                  <strong>🔐 Secure Access Credentials:</strong><br>
+                  Username: <code>admin</code><br>
+                  Password: <code>autoparts2024!@#</code><br>
+                  Security Key: <code>ADMIN_SECURE_2024</code><br>
+                  <em>2FA Code updates every 30 seconds</em>
+              </div>
+          </form>
+      </div>
+  </div>
+
+  <!-- Admin Dashboard -->
+  <div id="admin-container" class="admin-container">
+      <div class="admin-header">
+          <div>
+              <h1>Admin Dashboard</h1>
+              <p>Welcome to the Auto Parts Shop Admin Panel</p>
+          </div>
+          <button class="btn btn-secondary" onclick="logout()">Logout</button>
+      </div>
+
+      <div class="admin-nav">
+          <button class="nav-btn active" onclick="showSection('dashboard')">📊 Dashboard</button>
+          <button class="nav-btn" onclick="showSection('security')">🔒 Security</button>
+          <button class="nav-btn" onclick="showSection('payments')">💰 Payments</button>
+          <button class="nav-btn" onclick="showSection('inventory')">📦 Inventory</button>
+          <button class="nav-btn" onclick="showSection('orders')">🛒 Orders</button>
+          <button class="nav-btn" onclick="showSection('reviews')">⭐ Reviews</button>
+          <button class="nav-btn" onclick="showSection('users')">👥 Users</button>
+      </div>
+
+      <!-- Dashboard Section -->
+      <div id="dashboard" class="admin-section active">
+          <h2>🎯 Admin Dashboard Overview</h2>
+          <div class="stats-grid">
+              <div class="stat-card">
+                  <div class="stat-number">1,247</div>
+                  <div class="stat-label">Total Parts</div>
+              </div>
+              <div class="stat-card">
+                  <div class="stat-number">89</div>
+                  <div class="stat-label">Pending Orders</div>
+              </div>
+              <div class="stat-card">
+                  <div class="stat-number" id="security-threats">0</div>
+                  <div class="stat-label">Security Threats Blocked</div>
+              </div>
+              <div class="stat-card">
+                  <div class="stat-number" id="total-revenue">$24,567</div>
+                  <div class="stat-label">Total Revenue</div>
+              </div>
+          </div>
+          
+          <div style="margin-top: 30px;">
+              <h3>🚨 Recent Security Alerts</h3>
+              <div id="recent-alerts" style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin-top: 10px;">
+                  <p>No recent security alerts</p>
+              </div>
+          </div>
+      </div>
+
+      <!-- Security Section -->
+      <div id="security" class="admin-section">
+          <h2>🔒 Security Management</h2>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
+              <div style="background: #2c3e50; color: white; padding: 20px; border-radius: 10px;">
+                  <h3>🛡️ Active Protection</h3>
+                  <ul style="list-style: none; padding: 0;">
+                      <li>✅ Rate Limiting Active</li>
+                      <li>✅ Bot Detection Running</li>
+                      <li>✅ CSRF Protection Enabled</li>
+                      <li>✅ XSS Prevention Active</li>
+                      <li>✅ SQL Injection Blocking</li>
+                  </ul>
+              </div>
+              <div style="background: #27ae60; color: white; padding: 20px; border-radius: 10px;">
+                  <h3>📊 Security Stats</h3>
+                  <p>Blocked Attacks Today: <span id="blocked-today">0</span></p>
+                  <p>Suspicious IPs: <span id="suspicious-ips">0</span></p>
+                  <p>Failed Login Attempts: <span id="failed-logins">0</span></p>
+              </div>
+          </div>
+
+          <h3>📋 Security Log</h3>
+          <div id="security-log" style="background: white; border: 1px solid #ddd; border-radius: 10px; padding: 15px; max-height: 400px; overflow-y: auto;">
+              <p>Loading security logs...</p>
+          </div>
+
+          <div style="margin-top: 20px;">
+              <button class="btn btn-danger" onclick="clearSecurityLog()">🗑️ Clear Log</button>
+              <button class="btn btn-secondary" onclick="exportSecurityLog()">📥 Export Log</button>
+          </div>
+      </div>
+
+      <!-- Payments Section -->
+      <div id="payments" class="admin-section">
+          <h2>💰 Payment Management</h2>
+          
+          <div class="stats-grid" style="margin-bottom: 30px;">
+              <div class="stat-card" style="background: linear-gradient(135deg, #27ae60, #2ecc71);">
+                  <div class="stat-number" id="total-payments">$0</div>
+                  <div class="stat-label">Total Payments</div>
+              </div>
+              <div class="stat-card" style="background: linear-gradient(135deg, #3498db, #5dade2);">
+                  <div class="stat-number" id="pending-payments">0</div>
+                  <div class="stat-label">Pending Payments</div>
+              </div>
+              <div class="stat-card" style="background: linear-gradient(135deg, #f39c12, #f7dc6f);">
+                  <div class="stat-number" id="commission-earned">$0</div>
+                  <div class="stat-label">Commission Earned</div>
+              </div>
+              <div class="stat-card" style="background: linear-gradient(135deg, #9b59b6, #bb8fce);">
+                  <div class="stat-number" id="monthly-revenue">$0</div>
+                  <div class="stat-label">Monthly Revenue</div>
+              </div>
+          </div>
+
+          <h3>💳 Payment Configuration</h3>
+          <div style="background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+              <div class="form-row">
+                  <div class="form-group">
+                      <label>Commission Rate (%)</label>
+                      <input type="number" id="commission-rate" value="15" min="0" max="100">
+                  </div>
+                  <div class="form-group">
+                      <label>Processing Fee ($)</label>
+                      <input type="number" id="processing-fee" value="2.99" step="0.01">
+                  </div>
+              </div>
+              <div class="form-group">
+                  <label>Bank Account (for deposits)</label>
+                  <input type="text" id="bank-account" placeholder="****-****-****-1234">
+              </div>
+              <button class="btn btn-success" onclick="updatePaymentSettings()">💾 Save Settings</button>
+          </div>
+
+          <h3>📊 Transaction History</h3>
+          <div id="transaction-history" style="background: white; border-radius: 10px; padding: 15px;">
+              <table class="data-table">
+                  <thead>
+                      <tr>
+                          <th>Transaction ID</th>
+                          <th>Date</th>
+                          <th>Amount</th>
+                          <th>Status</th>
+                          <th>Commission</th>
+                          <th>Actions</th>
+                      </tr>
+                  </thead>
+                  <tbody id="transactions-tbody">
+                      <tr>
+                          <td colspan="6">No transactions yet</td>
+                      </tr>
+                  </tbody>
+              </table>
+          </div>
+      </div>
+
+      <!-- Inventory Section -->
+      <div id="inventory" class="admin-section">
+          <h2>Inventory Management</h2>
+          <button class="btn" onclick="showAddPartForm()">+ Add New Part</button>
+          <div id="add-part-form" style="display: none; margin-top: 20px;">
+              <h3>Add New Part</h3>
+              <div class="form-group">
+                  <label for="part-name">Part Name</label>
+                  <input type="text" id="part-name" required>
+              </div>
+              <div class="form-group">
+                  <label for="part-price">Price</label>
+                  <input type="number" id="part-price" step="0.01" required>
+              </div>
+              <div class="form-group">
+                  <label for="part-category">Category</label>
+                  <select id="part-category">
+                      <option value="engine">Engine Parts</option>
+                      <option value="body">Body Parts</option>
+                      <option value="interior">Interior</option>
+                      <option value="electrical">Electrical</option>
+                  </select>
+              </div>
+              <button class="btn btn-success" onclick="addPart()">Add Part</button>
+              <button class="btn btn-secondary" onclick="hideAddPartForm()">Cancel</button>
+          </div>
+          <div class="success-message" id="inventory-success"></div>
+      </div>
+
+      <!-- Orders Section -->
+      <div id="orders" class="admin-section">
+          <h2>Order Management</h2>
+          <table class="data-table">
+              <thead>
+                  <tr>
+                      <th>Order ID</th>
+                      <th>Customer</th>
+                      <th>Total</th>
+                      <th>Status</th>
+                      <th>Date</th>
+                      <th>Actions</th>
+                  </tr>
+              </thead>
+              <tbody>
+                  <tr>
+                      <td>#001234</td>
+                      <td>John Smith</td>
+                      <td>$245.99</td>
+                      <td>Pending</td>
+                      <td>2024-01-15</td>
+                      <td>
+                          <button class="btn btn-success" style="padding: 5px 10px; font-size: 0.8rem;">Approve</button>
+                          <button class="btn btn-secondary" style="padding: 5px 10px; font-size: 0.8rem;">View</button>
+                      </td>
+                  </tr>
+                  <tr>
+                      <td>#001235</td>
+                      <td>Sarah Johnson</td>
+                      <td>$189.50</td>
+                      <td>Shipped</td>
+                      <td>2024-01-14</td>
+                      <td>
+                          <button class="btn btn-secondary" style="padding: 5px 10px; font-size: 0.8rem;">View</button>
+                      </td>
+                  </tr>
+              </tbody>
+          </table>
+      </div>
+
+      <!-- Reviews Section -->
+      <div id="reviews" class="admin-section">
+          <h2>Review Management</h2>
+          <div id="pending-reviews"></div>
+      </div>
+
+      <!-- Users Section -->
+      <div id="users" class="admin-section">
+          <h2>User Management</h2>
+          <table class="data-table">
+              <thead>
+                  <tr>
+                      <th>User ID</th>
+                      <th>Name</th>
+                      <th>Email</th>
+                      <th>Joined</th>
+                      <th>Orders</th>
+                      <th>Actions</th>
+                  </tr>
+              </thead>
+              <tbody>
+                  <tr>
+                      <td>#U001</td>
+                      <td>Mike Johnson</td>
+                      <td>mike@email.com</td>
+                      <td>2023-12-15</td>
+                      <td>5</td>
+                      <td>
+                          <button class="btn btn-secondary" style="padding: 5px 10px; font-size: 0.8rem;">View</button>
+                          <button class="btn btn-danger" style="padding: 5px 10px; font-size: 0.8rem;">Block</button>
+                      </td>
+                  </tr>
+              </tbody>
+          </table>
+      </div>
+  </div>
+
+  <script src="security.js"></script>
+  <script>
+    // Update 2FA display
+    function update2FA() {
+        const current2FA = Math.floor(Date.now() / 30000).toString();
+        document.getElementById('current-2fa').textContent = current2FA;
+    }
+    setInterval(update2FA, 1000);
+    update2FA();
+
+    // Enhanced login functionality
+    document.getElementById('admin-login').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        const twoFactor = document.getElementById('two-factor').value;
+        const adminKey = document.getElementById('admin-key').value;
+        
+        // Enhanced security validation
+        if (username === 'admin' && password === 'autoparts2024!@#' && 
+            adminKey === 'ADMIN_SECURE_2024' && 
+            twoFactor === Math.floor(Date.now() / 30000).toString()) {
+            
+            document.getElementById('login-container').style.display = 'none';
+            document.getElementById('admin-container').style.display = 'block';
+            localStorage.setItem('adminLoggedIn', 'true');
+            localStorage.setItem('adminSessionStart', Date.now());
+            
+            // Log successful admin login
+            SecurityManager.logSecurityEvent('ADMIN_LOGIN_SUCCESS', SecurityManager.getClientIP());
+            loadSecurityDashboard();
+            loadPaymentDashboard();
+        } else {
+            document.getElementById('login-error').style.display = 'block';
+            SecurityManager.logSecurityEvent('ADMIN_LOGIN_FAILED', SecurityManager.getClientIP());
+        }
+    });
+
+    function logout() {
+        localStorage.removeItem('adminLoggedIn');
+        document.getElementById('login-container').style.display = 'flex';
+        document.getElementById('admin-container').style.display = 'none';
+        document.getElementById('admin-login').reset();
+    }
+
+    function showSection(sectionName) {
+        // Hide all sections
+        document.querySelectorAll('.admin-section').forEach(section => {
+            section.classList.remove('active');
+        });
+        
+        // Remove active class from all nav buttons
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        // Show selected section
+        document.getElementById(sectionName).classList.add('active');
+        event.target.classList.add('active');
+        
+        // Load section-specific data
+        if (sectionName === 'reviews') {
+            loadPendingReviews();
+        }
+    }
+
+    function showAddPartForm() {
+        document.getElementById('add-part-form').style.display = 'block';
+    }
+
+    function hideAddPartForm() {
+        document.getElementById('add-part-form').style.display = 'none';
+    }
+
+    function addPart() {
+        const name = document.getElementById('part-name').value;
+        const price = document.getElementById('part-price').value;
+        const category = document.getElementById('part-category').value;
+        
+        if (name && price) {
+            // Simulate adding part
+            const successMsg = document.getElementById('inventory-success');
+            successMsg.textContent = `Part "${name}" added successfully!`;
+            successMsg.style.display = 'block';
+            
+            // Reset form
+            document.getElementById('part-name').value = '';
+            document.getElementById('part-price').value = '';
+            hideAddPartForm();
+            
+            setTimeout(() => {
+                successMsg.style.display = 'none';
+            }, 3000);
+        }
+    }
+
+    function loadPendingReviews() {
+        const pendingReviews = JSON.parse(localStorage.getItem('pendingReviews') || '[]');
+        const container = document.getElementById('pending-reviews');
+        
+        if (pendingReviews.length === 0) {
+            container.innerHTML = '<p>No pending reviews.</p>';
+            return;
+        }
+        
+        container.innerHTML = pendingReviews.map((review, index) => `
+            <div class="review-item review-pending">
+                <div class="review-header">
+                    <div>
+                        <strong>${review.name}</strong> - ${review.rating} ⭐
+                        <div style="font-size: 0.9rem; color: #666;">${review.date}</div>
+                    </div>
+                    <div class="review-actions">
+                        <button class="btn btn-success" style="padding: 5px 10px; font-size: 0.8rem;" onclick="approveReview(${index})">Approve</button>
+                        <button class="btn btn-danger" style="padding: 5px 10px; font-size: 0.8rem;" onclick="rejectReview(${index})">Reject</button>
+                    </div>
+                </div>
+                <div><strong>${review.title}</strong></div>
+                <div>${review.text}</div>
+                ${review.product ? `<div style="margin-top: 10px; padding: 10px; background: #f0f9ff; border-radius: 5px;">Product: ${review.product}</div>` : ''}
+            </div>
+        `).join('');
+    }
+
+    function approveReview(index) {
+        let pendingReviews = JSON.parse(localStorage.getItem('pendingReviews') || '[]');
+        const review = pendingReviews[index];
+        
+        // Remove from pending
+        pendingReviews.splice(index, 1);
+        localStorage.setItem('pendingReviews', JSON.stringify(pendingReviews));
+        
+        // Add to approved reviews (you could store these separately)
+        let approvedReviews = JSON.parse(localStorage.getItem('approvedReviews') || '[]');
+        approvedReviews.push(review);
+        localStorage.setItem('approvedReviews', JSON.stringify(approvedReviews));
+        
+        loadPendingReviews();
+        alert('Review approved successfully!');
+    }
+
+    function rejectReview(index) {
+        let pendingReviews = JSON.parse(localStorage.getItem('pendingReviews') || '[]');
+        pendingReviews.splice(index, 1);
+        localStorage.setItem('pendingReviews', JSON.stringify(pendingReviews));
+        
+        loadPendingReviews();
+        alert('Review rejected.');
+    }
+
+    // Check if already logged in
+    window.addEventListener('load', function() {
+        if (localStorage.getItem('adminLoggedIn') === 'true') {
+            document.getElementById('login-container').style.display = 'none';
+            document.getElementById('admin-container').style.display = 'block';
+        }
+    });
+  </script>
+</body>
+</html>
+
+
+
+    // Security Dashboard Functions
+    function loadSecurityDashboard() {
+        const securityLog = SecurityManager.getSecurityLog();
+        const threatsBlocked = securityLog.filter(log => 
+            ['SQL_INJECTION_ATTEMPT', 'XSS_ATTEMPT', 'RATE_LIMIT_EXCEEDED'].includes(log.event)
+        ).length;
+        
+        document.getElementById('security-threats').textContent = threatsBlocked;
+        document.getElementById('blocked-today').textContent = securityLog.filter(log => 
+            new Date(log.timestamp).toDateString() === new Date().toDateString()
+        ).length;
+        
+        displaySecurityLog();
+        displayRecentAlerts();
+    }
+
+    function displaySecurityLog() {
+        const logDiv = document.getElementById('security-log');
+        const logs = SecurityManager.getSecurityLog();
+        
+        if (logs.length === 0) {
+            logDiv.innerHTML = '<p>No security events logged</p>';
+            return;
+        }
+        
+        logDiv.innerHTML = logs.slice(-50).reverse().map(log => `
+            <div style="padding: 10px; border-left: 4px solid ${getLogColor(log.event)}; margin-bottom: 5px; background: #f8f9fa;">
+                <strong>${log.event}</strong> - ${new Date(log.timestamp).toLocaleString()}<br>
+                IP: ${log.ip}<br>
+                <small>${log.userAgent}</small>
+            </div>
+        `).join('');
+    }
+
+    function getLogColor(event) {
+        const colors = {
+            'SQL_INJECTION_ATTEMPT': '#e74c3c',
+            'XSS_ATTEMPT': '#e74c3c',
+            'RATE_LIMIT_EXCEEDED': '#f39c12',
+            'ADMIN_LOGIN_SUCCESS': '#27ae60',
+            'ADMIN_LOGIN_FAILED': '#e67e22'
+        };
+        return colors[event] || '#3498db';
+    }
+
+    function displayRecentAlerts() {
+        const alerts = SecurityManager.getAdminNotifications();
+        const alertsDiv = document.getElementById('recent-alerts');
+        
+        if (alerts.length === 0) {
+            alertsDiv.innerHTML = '<p>No recent security alerts</p>';
+            return;
+        }
+        
+        alertsDiv.innerHTML = alerts.slice(-5).reverse().map(alert => `
+            <div style="padding: 8px; background: #e74c3c; color: white; border-radius: 5px; margin-bottom: 5px;">
+                <strong>${alert.type}</strong> - ${alert.message}
+                <small style="display: block;">${new Date(alert.timestamp).toLocaleString()}</small>
+            </div>
+        `).join('');
+    }
+
+    // Payment Dashboard Functions
+    function loadPaymentDashboard() {
+        const transactions = JSON.parse(localStorage.getItem('adminTransactions') || '[]');
+        const totalPayments = transactions.reduce((sum, t) => sum + (t.amount || 0), 0);
+        const pendingPayments = transactions.filter(t => t.status === 'PENDING').length;
+        const commissionRate = parseFloat(document.getElementById('commission-rate').value) / 100;
+        const commissionEarned = totalPayments * commissionRate;
+        
+        document.getElementById('total-payments').textContent = `$${totalPayments.toFixed(2)}`;
+        document.getElementById('pending-payments').textContent = pendingPayments;
+        document.getElementById('commission-earned').textContent = `$${commissionEarned.toFixed(2)}`;
+        document.getElementById('monthly-revenue').textContent = `$${(totalPayments * 0.8).toFixed(2)}`;
+        
+        displayTransactionHistory();
+    }
+
+    function displayTransactionHistory() {
+        const transactions = JSON.parse(localStorage.getItem('adminTransactions') || '[]');
+        const tbody = document.getElementById('transactions-tbody');
+        
+        if (transactions.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6">No transactions yet</td></tr>';
+            return;
+        }
+        
+        tbody.innerHTML = transactions.map(transaction => {
+            const commission = (transaction.amount || 0) * 0.15;
+            return `
+                <tr>
+                    <td>${transaction.id}</td>
+                    <td>${new Date(transaction.timestamp).toLocaleDateString()}</td>
+                    <td>$${(transaction.amount || 0).toFixed(2)}</td>
+                    <td><span style="padding: 3px 8px; border-radius: 10px; background: ${transaction.status === 'COMPLETED' ? '#27ae60' : '#f39c12'}; color: white; font-size: 0.8rem;">${transaction.status}</span></td>
+                    <td>$${commission.toFixed(2)}</td>
+                    <td>
+                        <button class="btn" style="padding: 3px 8px; font-size: 0.8rem;" onclick="viewTransaction('${transaction.id}')">View</button>
+                        ${transaction.status === 'PENDING' ? `<button class="btn btn-success" style="padding: 3px 8px; font-size: 0.8rem;" onclick="approvePayment('${transaction.id}')">Approve</button>` : ''}
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    function updatePaymentSettings() {
+        const settings = {
+            commissionRate: document.getElementById('commission-rate').value,
+            processingFee: document.getElementById('processing-fee').value,
+            bankAccount: document.getElementById('bank-account').value
+        };
+        localStorage.setItem('paymentSettings', JSON.stringify(settings));
+        alert('Payment settings updated successfully!');
+    }
+
+    function approvePayment(transactionId) {
+        const transactions = JSON.parse(localStorage.getItem('adminTransactions') || '[]');
+        const transaction = transactions.find(t => t.id === transactionId);
+        if (transaction) {
+            transaction.status = 'COMPLETED';
+            transaction.amount = parseFloat(prompt('Enter payment amount:', '0') || '0');
+            localStorage.setItem('adminTransactions', JSON.stringify(transactions));
+            loadPaymentDashboard();
+            alert('Payment approved and processed!');
+        }
+    }
+
+    function viewTransaction(transactionId) {
+        const transactions = JSON.parse(localStorage.getItem('adminTransactions') || '[]');
+        const transaction = transactions.find(t => t.id === transactionId);
+        if (transaction) {
+            alert(`Transaction Details:\nID: ${transaction.id}\nStatus: ${transaction.status}\nAmount: $${transaction.amount || 0}\nTimestamp: ${new Date(transaction.timestamp).toLocaleString()}`);
+        }
+    }
+
+    function clearSecurityLog() {
+        if (confirm('Are you sure you want to clear the security log?')) {
+            SecurityManager.securityLog = [];
+            displaySecurityLog();
+            alert('Security log cleared successfully!');
+        }
+    }
+
+    function exportSecurityLog() {
+        const logs = SecurityManager.getSecurityLog();
+        const dataStr = JSON.stringify(logs, null, 2);
+        const dataBlob = new Blob([dataStr], {type: 'application/json'});
+        const url = URL.createObjectURL(dataBlob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `security_log_${new Date().toISOString().split('T')[0]}.json`;
+        link.click();
+    }
+
+    // Auto-refresh security dashboard
+    setInterval(() => {
+        if (document.getElementById('security').classList.contains('active')) {
+            loadSecurityDashboard();
+        }
+        if (document.getElementById('payments').classList.contains('active')) {
+            loadPaymentDashboard();
+        }
+    }, 30000);

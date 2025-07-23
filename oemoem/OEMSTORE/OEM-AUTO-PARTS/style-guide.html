@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Site Style Guide</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- Example font: Sofia Sans Extra Condensed -->
+  <link href="https://fonts.googleapis.com/css2?family=Sofia+Sans+Extra+Condensed:ital,wght@0,800;1,800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* Color Palette (using your palette) */
+      --buff: #d4aa7dff;
+      --ebony: #575c55ff;
+      --azure-web: #e6fdffff;
+      
+      /* You might also add gradients as needed */
+      --gradient-top: linear-gradient(0deg, var(--buff), var(--ebony), var(--azure-web));
+    }
+    
+    body {
+      font-family: "Sofia Sans Extra Condensed", serif;
+      margin: 20px;
+      background: var(--azure-web);
+      color: var(--ebony);
+    }
+    
+    h1, h2, h3 {
+      margin: 20px 0 10px;
+    }
+    
+    .swatch {
+      display: inline-block;
+      width: 100px;
+      height: 100px;
+      margin: 10px;
+      border: 1px solid #ccc;
+    }
+    
+    .color-info {
+      display: inline-block;
+      vertical-align: top;
+      margin: 10px;
+    }
+    
+    .color-info p {
+      margin: 5px 0;
+    }
+    
+    /* Typography Samples */
+    .typography-sample {
+      margin: 20px 0;
+      padding: 10px;
+      border: 1px solid #ccc;
+      background: #fff;
+    }
+    
+    /* Logo and Icons Section */
+    .logo {
+      font-size: 2em;
+      font-weight: 800;
+      /* For now, this is a placeholder text-based logo.
+         In practice, you can replace it with your image logo. */
+    }
+    
+    .icon-set {
+      margin-top: 20px;
+    }
+    
+    .icon {
+      font-size: 2em;
+      margin: 0 10px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Site Style Guide</h1>
+  </header>
+  
+  <section>
+    <h2>Color Palette</h2>
+    <div>
+      <div class="swatch" style="background: var(--buff);"></div>
+      <div class="color-info">
+        <p><strong>Buff</strong></p>
+        <p>HEX: <code>#d4aa7dff</code></p>
+        <p>HSL: <code>hsla(31, 50%, 66%, 1)</code></p>
+      </div>
+    </div>
+    <div>
+      <div class="swatch" style="background: var(--ebony);"></div>
+      <div class="color-info">
+        <p><strong>Ebony</strong></p>
+        <p>HEX: <code>#575c55ff</code></p>
+        <p>HSL: <code>hsla(103, 4%, 35%, 1)</code></p>
+      </div>
+    </div>
+    <div>
+      <div class="swatch" style="background: var(--azure-web);"></div>
+      <div class="color-info">
+        <p><strong>Azure Web</strong></p>
+        <p>HEX: <code>#e6fdffff</code></p>
+        <p>HSL: <code>hsla(185, 100%, 95%, 1)</code></p>
+      </div>
+    </div>
+  </section>
+  
+  <section>
+    <h2>Typography</h2>
+    <div class="typography-sample">
+      <p style="font-size: 2em; font-weight: 800;">Heading Example - Sofia Sans Extra Condensed (ExtraBold 800)</p>
+      <p style="font-size: 1em;">Body text sample using the same font for consistency.</p>
+    </div>
+    <p>Embed Code:</p>
+    <pre>
+&lt;link rel="preconnect" href="https://fonts.googleapis.com"&gt;
+&lt;link rel="preconnect" href="https://fonts.gstatic.com" crossorigin&gt;
+&lt;link href="https://fonts.googleapis.com/css2?family=Sofia+Sans+Extra+Condensed:ital,wght@0,800;1,800&amp;display=swap" rel="stylesheet"&gt;
+    </pre>
+  </section>
+  
+  <section>
+    <h2>Logo</h2>
+    <p>For your logo, you might consider:</p>
+    <ul>
+      <li>Designing a custom icon or wordmark using a tool like Adobe Illustrator, Figma, or Canva.</li>
+      <li>If you prefer a quick solution, try an online logo maker (e.g. Hatchful by Shopify).</li>
+      <li>Ensure your logo follows your color palette and typography guidelines.</li>
+    </ul>
+    <div class="logo">
+      YourLogo
+    </div>
+  </section>
+  
+  <section>
+    <h2>Icon Set</h2>
+    <p>Consider using a popular icon library such as Font Awesome or Material Icons. For example:</p>
+    <div class="icon-set">
+      <!-- Example icons using Font Awesome (make sure to include their CDN in your head if you use them) -->
+      <span class="icon" title="Search">&#128269;</span>
+      <span class="icon" title="Cart">&#128722;</span>
+      <span class="icon" title="User">&#128100;</span>
+    </div>
+    <p>You can also customize icons to match your brand style.</p>
+  </section>
+  
+  <section>
+    <h2>Gradients</h2>
+    <p>Example gradient (Top):</p>
+    <div style="width: 200px; height: 100px; background: var(--gradient-top); margin: auto;"></div>
+  </section>
+  
+  <footer>
+    <p>Use this style guide as your reference for colors, fonts, logos, and icons.</p>
+  </footer>
+</body>
+</html>

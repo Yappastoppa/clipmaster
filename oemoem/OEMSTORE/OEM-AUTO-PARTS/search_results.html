@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Search Results</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sofia+Sans+Extra+Condensed:ital,wght@0,400;0,600;0,800;1,800&display=swap" rel="stylesheet">
+  <style>
+      :root {
+          --buff: #d4aa7dff;
+          --ebony: #575c55ff;
+          --azure-web: #e6fdffff;
+          --white: #ffffff;
+          --shadow: rgba(87, 92, 85, 0.1);
+      }
+
+      * {
+          box-sizing: border-box;
+          margin: 0;
+          padding: 0;
+      }
+
+      body { 
+          font-family: "Sofia Sans Extra Condensed", sans-serif; 
+          background: linear-gradient(135deg, var(--azure-web) 0%, #f0f9ff 100%);
+          color: var(--ebony);
+          min-height: 100vh;
+      }
+
+      .nav { 
+          background: var(--ebony);
+          padding: 15px 0;
+          box-shadow: 0 2px 10px var(--shadow);
+          position: sticky;
+          top: 0;
+          z-index: 100;
+          text-align: center;
+      }
+
+      .nav a { 
+          color: var(--white);
+          margin: 0 20px;
+          text-decoration: none;
+          padding: 12px 20px;
+          border-radius: 25px;
+          font-weight: 600;
+          transition: all 0.3s ease;
+          display: inline-block;
+      }
+
+      .nav a:hover { 
+          background-color: var(--buff);
+          color: var(--ebony);
+          transform: translateY(-2px);
+      }
+
+      .container { 
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 40px 20px;
+          text-align: center;
+      }
+
+      h1 {
+          font-size: 3rem;
+          font-weight: 800;
+          color: var(--ebony);
+          margin-bottom: 40px;
+          text-shadow: 2px 2px 4px var(--shadow);
+      }
+
+      .sort-options { 
+          margin: 30px 0;
+          background: var(--white);
+          padding: 20px;
+          border-radius: 15px;
+          box-shadow: 0 4px 15px var(--shadow);
+          display: flex;
+          justify-content: center;
+          gap: 20px;
+          flex-wrap: wrap;
+      }
+
+      .sort-options label {
+          font-weight: 600;
+          font-size: 1.1rem;
+          margin-right: 10px;
+      }
+
+      .sort-options select {
+          padding: 8px 15px;
+          border: 2px solid var(--buff);
+          border-radius: 25px;
+          font-family: inherit;
+          font-size: 1rem;
+          background: var(--white);
+          color: var(--ebony);
+          cursor: pointer;
+          transition: all 0.3s ease;
+      }
+
+      .sort-options select:focus {
+          outline: none;
+          border-color: var(--ebony);
+          box-shadow: 0 0 10px rgba(212, 170, 125, 0.3);
+      }
+
+      .search-results { 
+          display: flex; 
+          flex-wrap: wrap; 
+          justify-content: center; 
+          gap: 25px; 
+      }
+
+      .product-grid { 
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+          gap: 25px;
+          width: 100%;
+      }
+
+      .product-list { 
+          display: none; 
+          flex-direction: column; 
+          align-items: center; 
+          gap: 20px; 
+          width: 100%;
+      }
+
+      .product { 
+          border: 2px solid var(--buff);
+          border-radius: 15px;
+          padding: 20px;
+          text-align: center;
+          cursor: pointer;
+          background: var(--white);
+          transition: all 0.3s ease;
+          box-shadow: 0 4px 15px var(--shadow);
+      }
+
+      .product:hover {
+          transform: translateY(-8px);
+          box-shadow: 0 12px 30px var(--shadow);
+          border-color: var(--ebony);
+      }
+
+      .product img { 
+          width: 100%;
+          height: 200px;
+          object-fit: cover;
+          border-radius: 10px;
+          margin-bottom: 15px;
+      }
+
+      .product-list .product { 
+          display: flex; 
+          align-items: center; 
+          width: 100%;
+          max-width: 800px;
+          text-align: left;
+          padding: 20px;
+      }
+
+      .product-list .product img { 
+          width: 150px; 
+          height: 120px;
+          margin-right: 20px; 
+          margin-bottom: 0;
+      }
+
+      .product h3 {
+          font-size: 1.3rem;
+          font-weight: 600;
+          color: var(--ebony);
+          margin-bottom: 10px;
+      }
+
+      .product p {
+          font-size: 1.1rem;
+          margin-bottom: 15px;
+          color: var(--ebony);
+          opacity: 0.8;
+      }
+
+      .product button {
+          background: var(--ebony);
+          color: var(--white);
+          border: none;
+          padding: 12px 25px;
+          border-radius: 25px;
+          font-size: 1rem;
+          font-weight: 600;
+          font-family: inherit;
+          cursor: pointer;
+          transition: all 0.3s ease;
+      }
+
+      .product button:hover {
+          background: var(--buff);
+          color: var(--ebony);
+          transform: translateY(-2px);
+          box-shadow: 0 5px 15px var(--shadow);
+      }
+
+      @media (max-width: 768px) {
+          .container {
+              padding: 20px 15px;
+          }
+
+          h1 {
+              font-size: 2.2rem;
+          }
+
+          .sort-options {
+              flex-direction: column;
+              gap: 15px;
+          }
+
+          .product-grid {
+              grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+              gap: 20px;
+          }
+
+          .product-list .product {
+              flex-direction: column;
+              text-align: center;
+          }
+
+          .product-list .product img {
+              margin-right: 0;
+              margin-bottom: 15px;
+              width: 100%;
+              height: 200px;
+          }
+
+          .nav a {
+              margin: 0 10px;
+              padding: 10px 15px;
+              font-size: 0.9rem;
+          }
+      }
+  </style>
+</head>
+<body>
+  <div class="nav">
+    <a href="index.html">Home</a>
+    <a href="parts_inventory.html">Parts Inventory</a>
+    <a href="contact.html">Contact</a>
+    <a href="cart.html">Cart (<span id="cart-count">0</span>)</a>
+  </div>
+
+  <div class="container">
+      <h1>Search Results</h1>
+      <div class="sort-options">
+          <label for="sort">Sort by:</label>
+          <select id="sort" onchange="sortResults()">
+              <option value="relevance">Relevance</option>
+              <option value="low-price">Price: Low to High</option>
+              <option value="high-price">Price: High to Low</option>
+          </select>
+          <label for="view-mode">View:</label>
+          <select id="view-mode" onchange="toggleView()">
+              <option value="grid">Grid</option>
+              <option value="list">List</option>
+          </select>
+      </div>
+      <div id="search-results" class="search-results">
+          <div id="grid-view" class="product-grid"></div>
+          <div id="list-view" class="product-list"></div>
+      </div>
+  </div>
+
+  <script>
+    let searchQuery = localStorage.getItem('searchQuery') || "";
+    let inventoryData = [];
+    let filteredResults = [];
+
+    async function loadInventoryData() {
+      try {
+        const response = await fetch('combined_listing.csv');
+        if (!response.ok) throw new Error(`Inventory error: ${response.status}`);
+        const csvText = await response.text();
+        inventoryData = parseCSV(csvText);
+        filterResults();
+      } catch (error) {
+        console.error("Error loading inventory data:", error);
+        alert("Failed to load inventory data. Please try again later.");
+      }
+    }
+
+    // Simple CSV parser (tab-delimited)
+    function parseCSV(csvText) {
+      const lines = csvText.trim().split("\n");
+      if (lines.length < 2) return [];
+      const header = lines[0].split("\t");
+      const data = [];
+      for (let i = 1; i < lines.length; i++) {
+        const row = lines[i].split("\t");
+        if (row.length !== header.length) continue;
+        const obj = {};
+        header.forEach((col, j) => {
+          obj[col] = row[j];
+        });
+        data.push({
+          title: obj["*Title"] || obj["Scraped Title"] || obj["Original Title"] || "No Title",
+          price: parseFloat((obj["Scraped Price"] || obj["Original Price"] || "").replace(/[^\d.]/g, "")) || 0,
+          image: obj["PicURL"] || "",
+          description: obj["*Description"] || "",
+          "Part Number": obj["Part Number"] || "",
+          "Car Brand": obj["Car Brand"] || "",
+          "Manufacturer Part Number": obj["Manufacturer Part Number"] || "",
+          "Year": obj["Year"] || "",
+          "Car Model": obj["Car Model"] || "",
+          "Stock Number": obj["Stock Number"] || "",
+          "VIN Number": obj["VIN Number"] || "",
+          "*Category": obj["*Category"] || "",
+          "*ConditionID": obj["*ConditionID"] || "",
+          "*Format": obj["*Format"] || "",
+          "*Duration": obj["*Duration"] || "",
+          "*StartPrice": obj["*StartPrice"] || "",
+          "*Location": obj["*Location"] || "",
+          "ShippingType": obj["ShippingType"] || "",
+          "ShippingService-1:Option": obj["ShippingService-1:Option"] || "",
+          "ShippingService-1:Cost": obj["ShippingService-1:Cost"] || "",
+          "*DispatchTimeMax": obj["*DispatchTimeMax"] || "",
+          "*ReturnsAcceptedOption": obj["*ReturnsAcceptedOption"] || "",
+          "Compatibilities": obj["Compatibilities"] || ""
+        });
+      }
+      return data;
+    }
+
+    // Splits the image URLs by a regex that trims spaces around the "|" delimiter,
+    // and filters out any URL containing the unwanted pattern.
+    function chooseBestImage(imageString) {
+      if (!imageString) return "";
+      const urls = imageString.split(/\s*\|\s*/);
+      const unwanted = "DOcAAOSw8NplLtwK"; // adjust this pattern if needed
+      const validUrls = urls.filter(url => url && !url.includes(unwanted));
+      if (validUrls.length === 0) return "";
+      return validUrls[0];
+    }
+
+    function cleanTitle(title) {
+      return title.replace(/Unknown Make Unknown Year/gi, "").trim();
+    }
+
+    function filterResults() {
+      filteredResults = [];
+      inventoryData.forEach(part => {
+        if (part.title.toLowerCase().includes(searchQuery)) {
+          filteredResults.push(part);
+        }
+      });
+      if (filteredResults.length === 0) {
+        filteredResults = fuzzySearch(searchQuery, inventoryData);
+      }
+      displayResults();
+    }
+
+    function displayResults() {
+      const gridView = document.getElementById("grid-view");
+      const listView = document.getElementById("list-view");
+
+      if (filteredResults.length === 0) {
+        gridView.innerHTML = "<p>No matching parts found.</p>";
+        listView.innerHTML = "<p>No matching parts found.</p>";
+        return;
+      }
+
+      gridView.innerHTML = filteredResults.map(part => {
+        const bestImage = chooseBestImage(part.image);
+        const cleanedTitle = cleanTitle(part.title);
+        return `
+          <div class="product" onclick="viewPartDetails(
+            '${encodeURIComponent(cleanedTitle)}',
+            '${encodeURIComponent(part.price)}',
+            '${encodeURIComponent(part.image)}',
+            '${encodeURIComponent(part.description)}',
+            {
+              'Part Number': '${encodeURIComponent(part["Part Number"])}',
+              'Car Brand': '${encodeURIComponent(part["Car Brand"])}',
+              'Manufacturer Part Number': '${encodeURIComponent(part["Manufacturer Part Number"])}',
+              'Year': '${encodeURIComponent(part["Year"])}',
+              'Car Model': '${encodeURIComponent(part["Car Model"])}',
+              'Stock Number': '${encodeURIComponent(part["Stock Number"])}',
+              'VIN Number': '${encodeURIComponent(part["VIN Number"])}',
+              '*Category': '${encodeURIComponent(part["*Category"])}',
+              '*ConditionID': '${encodeURIComponent(part["*ConditionID"])}',
+              '*Format': '${encodeURIComponent(part["*Format"])}',
+              '*Duration': '${encodeURIComponent(part["*Duration"])}',
+              '*StartPrice': '${encodeURIComponent(part["*StartPrice"])}',
+              '*Location': '${encodeURIComponent(part["*Location"])}',
+              'ShippingType': '${encodeURIComponent(part["ShippingType"])}',
+              'ShippingService-1:Option': '${encodeURIComponent(part["ShippingService-1:Option"])}',
+              'ShippingService-1:Cost': '${encodeURIComponent(part["ShippingService-1:Cost"])}',
+              '*DispatchTimeMax': '${encodeURIComponent(part["*DispatchTimeMax"])}',
+              '*ReturnsAcceptedOption': '${encodeURIComponent(part["*ReturnsAcceptedOption"])}',
+              'Compatibilities': '${encodeURIComponent(part["Compatibilities"])}'
+            }
+          )">
+            ${ bestImage ? `<img src="${bestImage}" alt="Part Image" loading="lazy">` : "" }
+            <h3>${cleanedTitle}</h3>
+            <p>Price: $${part.price.toFixed(2)}</p>
+            <button>Add to Cart</button>
+          </div>
+        `;
+      }).join('');
+
+      listView.innerHTML = filteredResults.map(part => {
+        const bestImage = chooseBestImage(part.image);
+        const cleanedTitle = cleanTitle(part.title);
+        return `
+          <div class="product" onclick="viewPartDetails(
+            '${encodeURIComponent(cleanedTitle)}',
+            '${encodeURIComponent(part.price)}',
+            '${encodeURIComponent(part.image)}',
+            '${encodeURIComponent(part.description)}',
+            {
+              'Part Number': '${encodeURIComponent(part["Part Number"])}',
+              'Car Brand': '${encodeURIComponent(part["Car Brand"])}',
+              'Manufacturer Part Number': '${encodeURIComponent(part["Manufacturer Part Number"])}',
+              'Year': '${encodeURIComponent(part["Year"])}',
+              'Car Model': '${encodeURIComponent(part["Car Model"])}',
+              'Stock Number': '${encodeURIComponent(part["Stock Number"])}',
+              'VIN Number': '${encodeURIComponent(part["VIN Number"])}',
+              '*Category': '${encodeURIComponent(part["*Category"])}',
+              '*ConditionID': '${encodeURIComponent(part["*ConditionID"])}',
+              '*Format': '${encodeURIComponent(part["*Format"])}',
+              '*Duration': '${encodeURIComponent(part["*Duration"])}',
+              '*StartPrice': '${encodeURIComponent(part["*StartPrice"])}',
+              '*Location': '${encodeURIComponent(part["*Location"])}',
+              'ShippingType': '${encodeURIComponent(part["ShippingType"])}',
+              'ShippingService-1:Option': '${encodeURIComponent(part["ShippingService-1:Option"])}',
+              'ShippingService-1:Cost': '${encodeURIComponent(part["ShippingService-1:Cost"])}',
+              '*DispatchTimeMax': '${encodeURIComponent(part["*DispatchTimeMax"])}',
+              '*ReturnsAcceptedOption': '${encodeURIComponent(part["*ReturnsAcceptedOption"])}',
+              'Compatibilities': '${encodeURIComponent(part["Compatibilities"])}'
+            }
+          )">
+            ${ bestImage ? `<img src="${bestImage}" alt="Part Image" loading="lazy">` : "" }
+            <div>
+              <h3>${cleanedTitle}</h3>
+              <p>Price: $${part.price.toFixed(2)}</p>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function toggleView() {
+      const viewMode = document.getElementById("view-mode").value;
+      document.getElementById("grid-view").style.display = viewMode === "grid" ? "flex" : "none";
+      document.getElementById("list-view").style.display = viewMode === "list" ? "flex" : "none";
+    }
+
+    function sortResults() {
+      const sortOption = document.getElementById("sort").value;
+      if (sortOption === "low-price") {
+        filteredResults.sort((a, b) => a.price - b.price);
+      } else if (sortOption === "high-price") {
+        filteredResults.sort((a, b) => b.price - a.price);
+      }
+      displayResults();
+    }
+
+    function fuzzySearch(query, items) {
+      return items.filter(part =>
+        part.title.toLowerCase().includes(query.slice(0, -1)) ||
+        query.slice(1).includes(part.title.toLowerCase())
+      );
+    }
+
+    function viewPartDetails(title, price, images, description, extraFields) {
+      if (!title || !price || !images) {
+        alert("Error: Missing part details!");
+        return;
+      }
+      // Decode the images string, split it by "|" with optional spaces, and filter out unwanted URLs.
+      const imageArray = decodeURIComponent(images)
+                          .split(/\s*\|\s*/)
+                          .map(url => url.trim())
+                          .filter(url => url !== "" && !url.includes("DOcAAOSw8NplLtwK"));
+      const partDetails = Object.assign({
+        title: decodeURIComponent(title),
+        price: decodeURIComponent(price),
+        images: imageArray,
+        description: decodeURIComponent(description)
+      }, extraFields);
+      localStorage.setItem('partDetails', JSON.stringify(partDetails));
+      window.location.href = 'part-details.html';
+    }
+
+    window.onload = async () => {
+      await loadInventoryData();
+      toggleView();
+    };
+  </script>
+</body>
+</html>
