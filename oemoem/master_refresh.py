@@ -160,7 +160,7 @@ class InventoryRefresher:
             
             # Extract all images
             all_images = []
-            
+
             # Main image gallery
             image_elements = detail_soup.find_all('img', {'id': re.compile(r'icImg|image')})
             for img in image_elements:
@@ -169,7 +169,7 @@ class InventoryRefresher:
                     # Get higher resolution version
                     high_res = src.replace('s-l64.', 's-l1600.').replace('s-l300.', 's-l1600.')
                     all_images.append(high_res)
-            
+
             # Image thumbnails
             thumb_elements = detail_soup.find_all('img', class_='img img64')
             for img in thumb_elements:
@@ -177,11 +177,19 @@ class InventoryRefresher:
                 if src and 'ebayimg.com' in src:
                     high_res = src.replace('s-l64.', 's-l1600.')
                     all_images.append(high_res)
-            
-            # Remove duplicates while preserving order
+
+            # Fallback: search HTML for any s-l1600 images
+            regex_images = re.findall(r'https://i\.ebayimg\.com/[^"\s>]+s-l1600\.(?:jpg|jpeg|png|webp)', detail_response.text)
+            all_images.extend(regex_images)
+
+            # Remove duplicates and filter out known stock images
+            stock_patterns = ['hVAAAOSwxiRnx4LA']
+
             unique_images = []
             seen = set()
             for img in all_images:
+                if any(pat in img for pat in stock_patterns):
+                    continue
                 if img not in seen:
                     unique_images.append(img)
                     seen.add(img)
@@ -368,8 +376,15 @@ class InventoryRefresher:
             logging.error(f"Unexpected error on page {current_page}: {e}")
             return False, []
 
-    def scrape_ebay_parts(self):
-        """Scrape parts from eBay store"""
+    def scrape_ebay_parts(self, max_pages: int = 20):
+        """Scrape parts from eBay store
+
+        Parameters
+        ----------
+        max_pages: int, optional
+            Maximum number of pages to scrape. Defaults to 20 for a full
+            refresh but can be lowered for quicker testing.
+        """
         logging.info("🔄 Starting eBay parts scraping...")
 
         base_url = 'https://www.ebay.com/str/partsboxbelton?_ipg=72&_pgn='
@@ -407,7 +422,6 @@ class InventoryRefresher:
             
             # Start scraping all pages
             page = 1
-            max_pages = 20  # Reduced for faster testing, increase as needed
             total_parts = 0
             
             while page <= max_pages:
