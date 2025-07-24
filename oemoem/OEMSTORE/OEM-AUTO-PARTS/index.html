@@ -1069,36 +1069,20 @@
       return matches ? matches : [];
     }
 
-    // Custom parser for donor_car.csv that uses headers for all fields except "Images",
-    // where we extract URLs using a regex from the raw row text.
-    function parseDonorCSVWithCustomImages(csvText) {
+    // Robust CSV parser that handles quoted fields
+    function parseCSV(csvText) {
       const lines = csvText.trim().split("\n");
-      if (lines.length < 2) {
-        console.warn("Donor CSV appears empty or has no data rows");
-        return [];
-      }
-      const header = lines[0].split(",").map(h => h.trim());
-      console.log("Donor CSV headers:", header);
-      
-      const data = [];
-      // Loop through each row
-      for (let i = 1; i < lines.length; i++) {
-        const rowText = lines[i];
-        // Use a simple comma-split for other fields
-        const fields = rowText.split(",");
+      if (lines.length < 2) return [];
+      const headers = lines[0].split(',').map(h => h.trim());
+
+      return lines.slice(1).map(line => {
+        const values = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/)
+          .map(v => v.trim().replace(/^"|"$/g, ''));
+
         const obj = {};
-        header.forEach((col, j) => {
-          if (col === "Images") {
-            // Instead of relying on the j-th split value, extract all URLs from the raw row
-            obj[col] = extractImageURLsFromRow(rowText).join(", ");
-          } else {
-            obj[col] = fields[j] ? fields[j].trim() : "";
-          }
-        });
-        data.push(obj);
-      }
-      console.log(`Parsed ${data.length} donor cars from CSV`);
-      return data;
+        headers.forEach((h, i) => { obj[h] = values[i] || ''; });
+        return obj;
+      });
     }
 
     /* -------------------------
@@ -1121,7 +1105,7 @@
     // Global variable to store donor cars for use across functions
     let globalDonorCars = [];
 
-    // Load donor car data using our custom parser.
+    // Load donor car data and filter invalid entries
     async function loadDonorCars() {
       const loadingElement = document.getElementById('loading-donor-cars');
       const errorElement = document.getElementById('donor-cars-error');
@@ -1134,9 +1118,11 @@
         const response = await fetch('donor_car.csv');
         if (!response.ok) throw new Error(`Error fetching donor cars: ${response.status}`);
         const csvText = await response.text();
-        const donorCars = parseDonorCSVWithCustomImages(csvText);
+        const cars = parseCSV(csvText);
+        const donorCars = cars.filter(car =>
+          car["VIN Number"] && car["VIN Number"].length === 17 && !car["VIN Number"].includes("JEWELRY")
+        );
 
-        // Store globally for hot cars slideshow
         globalDonorCars = donorCars;
 
         loadingElement.style.display = 'none';
@@ -1145,7 +1131,6 @@
           listElement.innerHTML = '<p style="text-align: center; color: var(--ebony); opacity: 0.7;">No donor cars available at the moment.</p>';
         } else {
           displayDonorCars(donorCars);
-          // Initialize hot cars slideshow after donor cars are loaded
           loadHotCars();
         }
       } catch (error) {
@@ -1159,13 +1144,15 @@
     function displayDonorCars(donorCars) {
       const container = document.getElementById('donor-cars-list');
       container.innerHTML = donorCars.map(car => {
-        // Expected CSV headers: "VIN Number", "Year", "Make", "Model", "Odometer miles", "Engine", "Location", "Title", "Damage", "VIN", "Lot", "Sale date", "Images", "Parts Available"
-        const images = car["Images"] ? car["Images"].split(",") : [];
-        const thumbnail = images.length > 0 ? images[0].trim() : "";
-        console.log(`For VIN ${car["VIN Number"]}, thumbnail:`, thumbnail);
+        const images = car["Images"] ? car["Images"].split(/[|,]/) : [];
+        let imgHTML = `<img src="https://via.placeholder.com/300x200?text=No+Images" alt="No images available">`;
+        if (images.length > 0) {
+          const thumb = images[0].trim();
+          imgHTML = `<img src="${thumb}" alt="Donor Car" onerror="this.src='https://via.placeholder.com/300x200?text=Image+Error'">`;
+        }
         return `
           <div class="donor-car-card" onclick="selectDonorCar('${car["VIN Number"]}')">
-            ${ thumbnail ? `<img src="${thumbnail}" alt="Donor Car Image">` : '' }
+            ${imgHTML}
             <h3>${car["Year"]} ${car["Make"]} ${car["Model"]}</h3>
             <p>Odometer: ${car["Odometer miles"]}</p>
             <p>Location: ${car["Location"]}</p>

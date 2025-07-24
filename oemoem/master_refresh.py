@@ -445,37 +445,29 @@ class InventoryRefresher:
                 f"✅ Scraped {len(page_parts)} valid items from page {current_page}"
             )
 
-            # Better pagination detection
+            # Improved pagination detection
             has_next_page = False
-            if len(page_parts) > 0:
-                next_page_indicators = [
-                    soup.find("a", {"aria-label": f"Page {current_page + 1}"}),
-                    soup.find("a", class_="pagination__next"),
-                    soup.find("a", string="Next"),
-                    soup.find("a", attrs={"title": "Next page"}),
-                    soup.find("a", attrs={"aria-label": "Next page"}),
-                ]
+            next_page_selectors = [
+                soup.select_one('a[aria-label="Next page"]'),
+                soup.select_one('a.pagination__next'),
+                soup.select_one('a:contains("Next")'),
+                soup.find('a', href=lambda href: href and f"_pgn={current_page+1}" in href)
+            ]
 
-                pagination_links = soup.find_all(
-                    "a", {"aria-label": re.compile(r"Page \d+")}
-                )
-                max_page_found = current_page
-                for link in pagination_links:
-                    try:
-                        page_match = re.search(
-                            r"Page (\d+)", link.get("aria-label", "")
-                        )
-                        if page_match:
-                            page_num = int(page_match.group(1))
-                            max_page_found = max(max_page_found, page_num)
-                    except:
-                        pass
+            for selector in next_page_selectors:
+                if selector and selector.get('aria-disabled') != 'true':
+                    has_next_page = True
+                    break
 
-                has_next_page = (
-                    any(indicator for indicator in next_page_indicators)
-                    or current_page < max_page_found
-                )
+            if not has_next_page:
+                page_links = soup.find_all('a', {'aria-label': re.compile(r'Page \d+')})
+                for link in page_links:
+                    match = re.search(r'Page (\d+)', link.get('aria-label', ''))
+                    if match and int(match.group(1)) == current_page + 1:
+                        has_next_page = True
+                        break
 
+            logging.info(f"🔍 Page {current_page} - Next page exists: {has_next_page}")
             return has_next_page, page_parts
 
         except requests.RequestException as e:
@@ -485,13 +477,13 @@ class InventoryRefresher:
             logging.error(f"Unexpected error on page {current_page}: {e}")
             return False, []
 
-    def scrape_ebay_parts(self, max_pages: int = 20):
+    def scrape_ebay_parts(self, max_pages: int = 200):
         """Scrape parts from eBay store
 
         Parameters
         ----------
         max_pages: int, optional
-            Maximum number of pages to scrape. Defaults to 20 for a full
+            Maximum number of pages to scrape. Defaults to 200 for a full
             refresh but can be lowered for quicker testing.
         """
         logging.info("🔄 Starting eBay parts scraping...")
@@ -538,27 +530,34 @@ class InventoryRefresher:
             # Start scraping all pages
             page = 1
             total_parts = 0
+            consecutive_errors = 0
+            max_consecutive_errors = 5
 
-            while page <= max_pages:
-                url = f"{base_url}{page}"
-                logging.info(f"🔄 Scraping page {page}...")
+            while page <= max_pages and consecutive_errors < max_consecutive_errors:
+                try:
+                    url = f"{base_url}{page}"
+                    logging.info(f"🔄 Scraping page {page}...")
 
-                has_next_page, page_parts = self.scrape_single_page(url, headers, page)
+                    has_next_page, page_parts = self.scrape_single_page(url, headers, page)
 
-                if page_parts:
-                    self.all_parts_data.extend(page_parts)
-                    total_parts += len(page_parts)
-                    logging.info(f"📊 Total parts scraped so far: {total_parts}")
+                    if page_parts:
+                        self.all_parts_data.extend(page_parts)
+                        total_parts += len(page_parts)
+                        logging.info(f"📊 Total parts scraped so far: {total_parts}")
 
-                if not page_parts:
-                    logging.info(f"🏁 No more items found. Last page scraped: {page}")
-                    break
+                    if not has_next_page:
+                        logging.info("🏁 No more pages detected")
+                        break
+
+                    consecutive_errors = 0
+                except Exception as e:
+                    logging.error(f"⚠️ Page {page} failed: {e}")
+                    consecutive_errors += 1
+                    page += 1
+                    continue
 
                 page += 1
-
-                delay = random.uniform(
-                    3, 6
-                )  # Slightly longer delay for detailed scraping
+                delay = random.uniform(4, 8)
                 logging.info(f"⏳ Waiting {delay:.1f}s before next page...")
                 time.sleep(delay)
 
