@@ -235,7 +235,11 @@ class InventoryRefresher:
             all_images.extend(regex_images)
 
             # Remove duplicates and filter out known stock images
-            stock_patterns = ["hVAAAOSwxiRnx4LA"]
+            stock_patterns = [
+                "hVAAAOSwxiRnx4LA",
+                "G98AAOSwhBhoVJq8",
+                "DOcAAOSw8NplLtwK",
+            ]
 
             unique_images = []
             seen = set()

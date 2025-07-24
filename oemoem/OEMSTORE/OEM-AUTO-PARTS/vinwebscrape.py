@@ -1,69 +1,63 @@
 import requests
 import pandas as pd
-from bs4 import BeautifulSoup
 import time
-import os
 
-# Load VINs and part numbers from CSV
-input_csv = "grouped_by_vin.csv"
-output_csv = "donor_car.csv"
+# Input and output CSV paths
+INPUT_CSV = "grouped_by_vin.csv"
+OUTPUT_CSV = "donor_car.csv"
 
-df = pd.read_csv(input_csv)
-
+df = pd.read_csv(INPUT_CSV)
 results = []
 
 
-# Function to scrape car data
-def scrape_car_data(vin):
-    url = f"https://carcheck.by/en/auto/{vin}"
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36"
-    }
-
-    response = requests.get(url, headers=headers)
-    if response.status_code != 200:
-        print(f"⚠️ Failed to fetch data for VIN {vin}. Status code: {response.status_code}")
-        return None
-
-    soup = BeautifulSoup(response.text, "html.parser")
-
-    # Extract vehicle details dynamically
-    vehicle_info = {"VIN Number": vin}
-    info_blocks = soup.find_all("div", class_="block")
-
-    for block in info_blocks:
-        key_span = block.find("span")
-        if key_span and key_span.text.strip():  # Ensure it's valid
-            key = block.text.replace(key_span.text, "").strip()
-            value = key_span.text.strip()
-            vehicle_info[key] = value
-
-    # Extract images from "owl_big" carousel
-    owl_big = soup.find("div", id="owl_big")
-    image_urls = []
-
-    if owl_big:
-        image_tags = owl_big.find_all("img", src=True)  # Find all image tags
-        image_urls = [img["src"] for img in image_tags]
-
-    # Store extracted images
-    vehicle_info["Images"] = ", ".join(image_urls) if image_urls else "No Images Found"
-
-    return vehicle_info
+def decode_vin(vin: str) -> dict:
+    """Query the NHTSA API for VIN details."""
+    url = (
+        f"https://vpic.nhtsa.dot.gov/api/vehicles/"
+        f"decodevinextended/{vin}?format=json"
+    )
+    try:
+        resp = requests.get(url, timeout=10)
+        if resp.status_code != 200:
+            print(f"Failed VIN lookup {vin}: {resp.status_code}")
+            return {}
+        data = resp.json()
+        parsed = {
+            item["Variable"]: item["Value"]
+            for item in data.get("Results", [])
+            if item.get("Variable") and item.get("Value")
+        }
+        return parsed
+    except Exception as e:
+        print(f"Error fetching VIN {vin}: {e}")
+        return {}
 
 
-for index, row in df.iterrows():
+for _, row in df.iterrows():
     vin = row["VIN Number"]
     part_numbers = row.get("Part Numbers", "")
+    print(f"Scraping {vin}...")
 
-    print(f"\n🔍 Scraping data for VIN: {vin}...")
-    car_data = scrape_car_data(vin)
+    decoded = decode_vin(vin)
+    if not decoded:
+        continue
 
-    if car_data:
-        car_data["Parts Available"] = part_numbers
-        results.append(car_data)
+    car_data = {
+        "VIN Number": vin,
+        "Make": decoded.get("Make", ""),
+        "Model": decoded.get("Model", ""),
+        "Model Year": decoded.get("Model Year", ""),
+        "Vehicle Type": decoded.get("Vehicle Type", ""),
+        "Body Class": decoded.get("Body Class", ""),
+        "Engine Model": decoded.get("Engine Model", ""),
+        "Fuel Type": decoded.get("Fuel Type - Primary", ""),
+        "Parts Available": part_numbers,
+        "Images": "",
+    }
 
-    time.sleep(1)
+    results.append(car_data)
+    time.sleep(0.2)
 
-pd.DataFrame(results).to_csv(output_csv, index=False)
-print(f"\n✅ Scraping complete! Saved {len(results)} donor cars to {output_csv}.")
+pd.DataFrame(results).to_csv(OUTPUT_CSV, index=False)
+print(f"Saved {len(results)} donor cars to {OUTPUT_CSV}")
+
