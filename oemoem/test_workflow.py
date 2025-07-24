@@ -74,7 +74,10 @@ def main():
     print("🧪 TESTING COMPLETE DATA WORKFLOW")
     print("=" * 50)
     
-    base_path = "OEMSTORE/OEM-AUTO-PARTS"
+    # Resolve data directory relative to this script so it works
+    # regardless of the current working directory
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    base_path = os.path.join(script_dir, "OEMSTORE", "OEM-AUTO-PARTS")
     
     # Check all required files
     files_to_check = [

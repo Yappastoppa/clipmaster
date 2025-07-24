@@ -2,7 +2,6 @@ import requests
 import pandas as pd
 from bs4 import BeautifulSoup
 import time
-from tqdm import tqdm  # Progress bar
 import os
 
 # Load VINs and part numbers from CSV
@@ -11,13 +10,7 @@ output_csv = "donor_car.csv"
 
 df = pd.read_csv(input_csv)
 
-# Check if output CSV exists, and load existing data
-if os.path.exists(output_csv):
-    existing_df = pd.read_csv(output_csv)
-    processed_vins = set(existing_df["VIN Number"].tolist())  # Track already scraped VINs
-else:
-    existing_df = pd.DataFrame()
-    processed_vins = set()
+results = []
 
 
 # Function to scrape car data
@@ -59,34 +52,18 @@ def scrape_car_data(vin):
     return vehicle_info
 
 
-# Open the CSV in append mode to write data live
-with tqdm(total=len(df), desc="Scraping VINs", unit="VIN") as pbar:
-    for index, row in df.iterrows():
-        vin = row["VIN Number"]
-        part_numbers = row["Part Numbers"] if "Part Numbers" in row else ""
+for index, row in df.iterrows():
+    vin = row["VIN Number"]
+    part_numbers = row.get("Part Numbers", "")
 
-        # Skip already processed VINs
-        if vin in processed_vins:
-            print(f"⏭️ Skipping already processed VIN: {vin}")
-            pbar.update(1)
-            continue
+    print(f"\n🔍 Scraping data for VIN: {vin}...")
+    car_data = scrape_car_data(vin)
 
-        print(f"\n🔍 Scraping data for VIN: {vin}...")
-        car_data = scrape_car_data(vin)
+    if car_data:
+        car_data["Parts Available"] = part_numbers
+        results.append(car_data)
 
-        if car_data:
-            car_data["Parts Available"] = part_numbers
+    time.sleep(1)
 
-            # Convert to DataFrame and append live
-            new_entry_df = pd.DataFrame([car_data])
-            new_entry_df.to_csv(output_csv, mode="a", header=not os.path.exists(output_csv), index=False)
-
-            print(f"✅ Successfully saved data for VIN: {vin}")
-
-        # Sleep to avoid getting blocked
-        time.sleep(1)  
-
-        # Update progress bar
-        pbar.update(1)
-
-print(f"\n✅ Scraping complete! Data saved live in {output_csv}.")
+pd.DataFrame(results).to_csv(output_csv, index=False)
+print(f"\n✅ Scraping complete! Saved {len(results)} donor cars to {output_csv}.")
