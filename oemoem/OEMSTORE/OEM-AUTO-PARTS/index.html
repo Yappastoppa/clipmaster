@@ -1183,8 +1183,10 @@
     function chooseBestImage(imageString) {
       if (!imageString) return "";
       const urls = imageString.split(/\s*\|\s*/);
-      const unwantedPattern = "DOcAAOSw8NplLtwK";
-      const validUrls = urls.filter(url => !url.includes(unwantedPattern));
+      const unwantedPatterns = ["DOcAAOSw8NplLtwK", "G98AAOSwhBhoVJq8"];
+      const validUrls = urls.filter(url =>
+        !unwantedPatterns.some(pat => url.includes(pat))
+      );
       return validUrls.length > 0 ? validUrls[0] : "";
     }
 
